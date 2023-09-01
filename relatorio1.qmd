@@ -1,0 +1,725 @@
+---
+title: "Relatório: Acompanhamento pós COVID-19"
+author: "Daniel Figueira Ferreira"
+format: html
+editor: visual
+toc: true
+toc-depth: 5
+---
+
+```{r}
+#| echo: false
+#| output: false
+require(gtsummary)
+require(tidyverse)
+require(knitr)
+```
+
+# Indicação de acompanhamento de pacientes pós COVID-19
+
+Um projeto submetido ao LabEst teve o objetivo de verificar se há indicação de acompanhamento de pacientes pós Covid-19 em relação a gravidade da tomografia computadorizada de tórax relacionada à função pulmonar, devido à possibilidade da persistência de alterações sequelares pulmonares a partir dos exames.
+
+```{r}
+#| echo: false
+require(ggplot2)
+url <- 'https://www.dropbox.com/scl/fi/v4qgdrdo7e1ajer6nqaoi/luniere.csv?rlkey=y2qk1xvtobfm5z3zdno81rl0a&dl=1'
+#url="luniere.csv"
+dados <- read.csv(url, sep=';', h = T, encoding = 'latin-1')
+
+dados$TC.final <- (ifelse(dados$TC.final == "sequelas pos-COVID19", "Sequela", dados$TC.final))
+
+
+```
+
+## Análise descritiva
+
+Temos 4 colunas nesses dados, **Tabagismo**, **Gravidade**, **TC.inicial** e **TC.final**.
+
+-   Tabagismo: Variável dicotômica indicando se há histórico de tabagismo.
+-   Gravidade: Variável dicotômica indicando se houveram complicações com o paciente durante a doença, como intubação.
+-   TC.inicial: variável categórica com a indicação da gravidade diagosticada via exame de imagem, realizada enquanto o paciente estava com COVID-19.
+-   TC.final: Variável categórica com a indicação da gravidade diagosticada via exame de imagem, realizada com pelo menos 60 dias após o término da doença COVID-19.
+
+```{r}
+#| echo: false
+table_confusao <- table(dados$TC.inicial,dados$TC.final)[c(5,3,2,4,1), c(4,2,1,3,5)]
+```
+
+Vamos analisar os dados para TC.inicial e TC.final.
+
+```{r}
+#| echo: false
+
+#TC.inicial
+dados$TC.inicial <-  as.factor(dados$TC.inicial)
+dados$TC.inicial <- factor(dados$TC.inicial, levels = c("Nenhum","Minimo","Leve","Moderado","Grave"))
+
+dt_frame_descr <- data.frame(TC.inicial = factor(as.factor(levels(dados$TC.inicial)), levels = c("Nenhum","Minimo","Leve","Moderado","Grave")), quantidade=as.numeric(table(dados$TC.inicial)))
+#Agora TC.final
+dados$TC.final <- as.factor(dados$TC.final)
+dados$TC.final <- factor(dados$TC.final, levels = c("Nenhum","Minimo","Leve","Moderado",
+                                                    "Sequela"))
+dt_frame_descr_final <- 
+  data.frame(TC.final = factor(as.factor(levels(dados$TC.final)), levels = c("Nenhum","Minimo","Leve","Moderado","Sequela")), quantidade=as.numeric(table(dados$TC.final)))
+
+```
+
+::: panel-tabset
+## TC.Inicial
+
+```{r}
+#| echo: false
+#| label: fig-TC.inicial
+#| fig-cap: Grafico de barras para a variável categórica TC.inicial
+ggplot(dt_frame_descr, aes(x=TC.inicial,y=quantidade, fill=TC.inicial)) +
+  geom_bar(stat="identity")+
+  geom_text(aes(y=quantidade, label=quantidade), vjust=1.6, 
+           color="black", size=3.5)+
+  scale_fill_brewer(palette="Paired")+
+  theme_minimal()
+
+```
+
+## TC.Final
+
+```{r}
+#| echo: false
+#| label: fig-TC.final
+#| fig-cap: Gráfico de barras para a variável categórica TC.final
+
+ggplot(dt_frame_descr_final, aes(x=TC.final,y=quantidade, fill=TC.final)) +
+  geom_bar(stat="identity")+
+  geom_text(aes(y=quantidade, label=quantidade), vjust=1.6, 
+           color="black", size=3.5)+
+  scale_fill_brewer(palette="Paired")+
+  theme_minimal()
+```
+
+## Matriz De Confusão
+
+```{r}
+#| echo: false
+#| label: tbl-confusao-inicial-final
+#| tbl-cap: Matriz de Confusão
+kable(table_confusao)
+
+```
+:::
+
+Como foi possível ver, temos poucos dados para cada uma das gravidades, nas variáveis categóricas TC.inicial e TC.final, logo foi preciso utilizar um método alternativo para olhar o problema, pois caso contrário não haveria amostras o suficiente para as análises, ficariam imprecisas. A maneira encontrada foi abordar o problema de modo a ter apenas 3 classes para o quadro pulmonar do indivíduo, igual ou estável, melhora e piora. Aqueles que estão na diagonal principal serão vistos como os que mantém sua condição como Igual ou estável, os que estão abaixo da diagonal principal representam os indivíduos que melhoraram e por fim aqueles acima da diagonal principal representam os que tiveram piora de quadro.
+
+## Quadro do paciente
+
+```{r}
+#| echo: false
+n <- 204
+n_i <- 45
+n_p <- 9
+n_m <- n-n_i-n_p
+
+```
+
+```{r}
+#| echo: false
+#Funcao de verrossimilhanca
+verossimil <- function(theta1, theta2) {
+  result <- 0
+  if(theta1+theta2<1) {
+    result <- theta1**n_i * theta2**n_m * (1-theta1-theta2)**n_p
+  }
+  result
+}
+
+#Funcao posteriori
+posteriori_m <- function(theta1,theta2) {
+  verossimil(theta1,theta2) / pred
+}
+```
+
+```{r}
+#| echo: false
+#Grade de pontos
+theta1 <- seq(0.01,0.99,0.01)
+theta2 <- theta1
+
+tam_theta1 <-length(theta1)
+tam_theta2 <- tam_theta1
+
+```
+
+```{r}
+#| echo: false
+#preditiva
+pred <- 0
+for (i in 1:99) {
+  for (j in 1:99) {
+        pred <- pred + verossimil(theta1[i],theta2[j])
+
+  }
+}
+```
+
+```{r}
+#| echo: false
+#Posteriori
+Mpos <- matrix(0,99,99)
+for(i in 1:99 ){
+  for(j in 1:99) {
+    Mpos[i,j] <- posteriori_m(theta1[i],theta2[j])
+  }
+}
+
+```
+
+##### Estimativas pontuais
+
+```{r}
+#| echo: false
+
+E_theta1 <- 0 
+for(i in theta1){
+  for(j in theta2) {
+    E_theta1 <- E_theta1 + i*posteriori_m(i,j)
+  }
+}
+
+E_theta2 <- 0 
+for(i in theta1){
+  for(j in theta2) {
+    E_theta2 <- E_theta2 + j*posteriori_m(i,j)
+  }
+}
+
+Estimativas <- data.frame(E_theta1,E_theta2,1-E_theta1-E_theta2)
+```
+
+O valor médio estimado para cada classe foi de:
+
+| Igual     | Melhora   | Piora      |
+|-----------|-----------|------------|
+| 0.2222224 | 0.7294691 | 0.04830851 |
+
+: Média para o quadro pulmonar do indivíduo. {#tbl-esperancas}
+
+## Análise: Quadro em relação ao Tabaginsmo
+
+Agora é preciso investigar se dado o histórico de tabagismo da pessoa, o indivíduo será afetado ou não.
+
+```{r}
+#| echo: false
+dados %>% filter(Tabagismo == "SIM") %>% select(TC.inicial,TC.final) -> df_tabagismo_Sim
+
+dados %>% filter(Tabagismo == "NAO") %>% select(TC.inicial,TC.final) -> df_tabagismo_Nao
+
+tbl_nao <- table(df_tabagismo_Nao)
+tbl_sim <- table(df_tabagismo_Sim)
+
+
+#contador_nao <- c(I,M,P)
+contador_nao<-c(0,0,0)
+
+for (i in 1:nrow(tbl_nao)) {
+  for (j in 1:ncol(tbl_nao)) {
+    #Igual
+    if(i==j) contador_nao[1] = contador_nao[1] + tbl_nao[i,j]
+    #Melhora
+    if(i>j)  contador_nao[2] = contador_nao[2] + tbl_nao[i,j]
+    #Piora
+    if(i<j)  contador_nao[3] = contador_nao[3] + tbl_nao[i,j]
+    
+  }
+}
+cont_nao <- sum(contador_nao)
+
+#contador_sim <- c(I,M,P)
+contador_sim<-c(0,0,0)
+for (i in 1:nrow(tbl_sim)) {
+  for (j in 1:ncol(tbl_sim)) {
+    #Igual
+    if(i==j) contador_sim[1] = contador_sim[1] + tbl_sim[i,j]
+    #Melhora
+    if(i>j)  contador_sim[2] = contador_sim[2] + tbl_sim[i,j]
+    #Piora
+    if(i<j)  contador_sim[3] = contador_sim[3] + tbl_sim[i,j]
+    
+  }
+}
+cont_sim <- sum(contador_sim)
+```
+
+```{r}
+#| echo: false
+#Verossimilhanca tabagismo
+verossimil_tabag <- function(theta1, theta2, n_i,n_m,n_p) {
+  result <- 0
+  if(theta1+theta2<1) {
+    result <- theta1**n_i*theta2**n_m*(1-theta1-theta2)**(n_p)
+  }
+  result
+}
+
+#Posteriori tabagismo
+posteriori_tabag <- function(theta1,theta2,n_i,n_m,n_p, pred_tabag) {
+  verossimil_tabag(theta1, theta2, n_i,n_m,n_p)/pred_tabag
+}
+
+```
+
+```{r}
+#| echo: false
+#Grade de pontos
+theta1 <- seq(0.01,0.99,0.01)
+theta2 <- theta1
+```
+
+```{r}
+#| echo: false
+
+#calculando a preditiva tabagismo_nao
+pred_tabagismo_nao <- 0
+for (i in 1:99) {
+  for (j in 1:99) {
+    pred_tabagismo_nao <- pred_tabagismo_nao + verossimil_tabag(theta1[i],theta2[j],contador_nao[1],
+                                                        contador_nao[2],contador_nao[3])
+  }
+}
+#calculando a preditiva tabagismo_sim
+pred_tabagismo_sim <- 0
+for (i in 1:99) {
+  for (j in 1:99) {
+    pred_tabagismo_sim <- pred_tabagismo_sim + verossimil_tabag(theta1[i],theta2[j],contador_sim[1],
+                                                        contador_sim[2],contador_sim[3])
+  }
+}
+
+```
+
+```{r}
+#| echo: false
+
+#posteriori_nao
+Mpos_nao <- matrix(0,99,99)
+for (i in 1:99) {
+  for (j in 1:99) {
+    Mpos_nao[i,j] <- posteriori_tabag(theta1[i],theta2[j],contador_nao[1],
+                                      contador_nao[2],contador_nao[3],pred_tabagismo_nao)
+  }
+}
+
+#posteriori_sim
+Mpos_sim <- matrix(0,99,99)
+for (i in 1:99) {
+  for (j in 1:99) {
+    Mpos_sim[i,j] <- posteriori_tabag(theta1[i],theta2[j],contador_sim[1],
+                                      contador_sim[2],contador_sim[3],pred_tabagismo_nao)
+  }
+}
+
+
+```
+
+::: panel-tabset
+#### Não fumantes
+
+```{r Matriz de confusão para não fumantes}
+#| echo: false
+#| label: tbl-confusao-tabagismo-nao
+#| tbl-cap: Tabela de contigência entre TC.inicial e TC.final 
+kable(table(df_tabagismo_Nao))
+```
+
+#### Fumantes
+
+```{r Matriz de confusao para fumantes}
+#| echo: false
+#| label: tbl-confusao-tabagismo-sim
+#| tbl-cap: Tabela de contigência entre TC.inicial e TC.final 
+kable(table(df_tabagismo_Sim))
+```
+
+```{r Simulacao para o historico de tabagismo}
+#| echo: false
+theta3 <- theta1
+
+lista_nao_fumantes <- NULL
+for(i in theta1){
+  for(j in theta2) {
+    lista_nao_fumantes <- rbind( lista_nao_fumantes, c(i,j, posteriori_tabag(i,j, contador_nao[1], contador_nao[2], contador_nao[3],pred_tabagismo_nao)) )
+  }
+}
+lista_fumantes <- NULL
+for(i in theta1){
+  for(j in theta2) {
+    lista_fumantes <- rbind( lista_fumantes, c(i,j, posteriori_tabag(i,j, contador_sim[1], contador_sim[2], contador_sim[3], pred_tabagismo_sim)) )
+  }
+}
+
+# amostrando das posteriori (note que B = 1.000.000, pois deve ser grande)
+indice_theta <-  sample(1:nrow(lista_nao_fumantes), 1000000, T, lista_nao_fumantes[,3])
+indice_phi   <-  sample(1:nrow(lista_fumantes), 1000000, T, lista_fumantes[,3])
+
+mean( rowSums( lista_fumantes[indice_phi,-3] ) < rowSums( lista_nao_fumantes[indice_theta,-3] ) )
+
+```
+
+#### Estimativas
+
+```{r Calculo das esperancas fumantes e nao fumantes}
+#| echo: false
+#| label: tbl-esperancas-tabagismo
+#| tbl-cap: "Resultado para o quadro dos pacientes, sem histórico de tabagismo em porcentagem"
+#| tbl-cap-location: bottom
+
+
+#Espernca para theta|tabagismo como falso
+E_theta1_nao <- 0
+for (i in theta1) {
+  for (j in theta2) {
+    E_theta1_nao <- E_theta1_nao + i*posteriori_tabag(i,j,contador_nao[1],contador_nao[2], contador_nao[3], pred_tabagismo_nao)
+  }
+}
+
+E_theta2_nao <- 0
+for (i in theta1) {
+  for (j in theta2) {
+    E_theta2_nao <- E_theta2_nao + j*posteriori_tabag(i,j,contador_nao[1],contador_nao[2], contador_nao[3], pred_tabagismo_nao)
+  }
+}
+
+Esperanca_nao <- data.frame(Igual=E_theta1_nao*100,Melhora=E_theta2_nao*100,Piora=(1-E_theta1_nao-E_theta2_nao)*100)
+
+#Esperanca para theta|tabagismo como sim
+E_theta1_sim <- 0
+for (i in theta1) {
+  for (j in theta2) {
+    E_theta1_sim <- E_theta1_sim + i*posteriori_tabag(i,j,contador_sim[1],contador_sim[2], contador_sim[3], pred_tabagismo_sim)
+  }
+}
+
+E_theta2_sim <- 0
+for (i in theta1) {
+  for (j in theta2) {
+    E_theta2_sim <- E_theta2_sim + j*posteriori_tabag(i,j,contador_sim[1],contador_sim[2], contador_sim[3], pred_tabagismo_sim)
+  }
+}
+
+
+Esperanca_sim <- data.frame(Igual=E_theta1_sim*100, Melhora=E_theta2_sim*100, Piora=(1 - E_theta1_sim - E_theta2_sim)*100)
+
+Esperancas_tabagismo = rbind(Esperanca_nao,Esperanca_sim)
+row.names(Esperancas_tabagismo) <- c("Tabagismo Nao","Tabagismo Sim")
+#kable(Esperancas_tabagismo, digits = 4)
+
+tabagismo_nao <- data.frame(Estimativas=c(mean(lista_nao_fumantes[indice_theta,1]),
+                                               mean(lista_nao_fumantes[indice_theta,2]),
+                                          1-mean(lista_nao_fumantes[indice_theta,1])-mean(lista_nao_fumantes[indice_theta,2]))*100,
+                            dp=c(sd(lista_nao_fumantes[indice_theta,1]),
+                                 sd(lista_nao_fumantes[indice_theta,2]),
+                                 sd(1-lista_nao_fumantes[indice_theta,1]-lista_nao_fumantes[indice_theta,1]))*100)
+
+rownames(tabagismo_nao) <- c("Estável", "Melhora", "Piora")
+colnames(tabagismo_nao) <- c("Estimativa", "Desvio padrão")
+
+kable(tabagismo_nao, digits = 2)
+```
+
+```{r}
+#| echo: false
+#| label: tbl-esperancas-tabagismo-sim
+#| tbl-cap: Resultados para o quadro dos pacientes, dado o histórico positivo para tabagismo em porcentagem
+
+tabagismo_sim <- data.frame(Estimativas=c(mean(lista_fumantes[indice_phi,1]), 
+                                          mean(lista_fumantes[indice_phi,2]), 
+                                          mean(1-lista_fumantes[indice_phi,1]-lista_fumantes[indice_phi,2]))*100,
+                            dp=c(sd(lista_fumantes[indice_phi,1]),
+                                 sd(lista_fumantes[indice_phi,2]),
+                                 sd(1-lista_fumantes[indice_phi,1]-lista_fumantes[indice_phi,1]))*100)
+
+rownames(tabagismo_sim) <- c("Estável", "Melhora", "Piora")
+colnames(tabagismo_sim) <- c("Estimativa", "Desvio padrão")
+
+kable(tabagismo_sim, digits = 2)
+
+```
+
+#### Gráficos
+
+```{r}
+#| echo: false
+#| label: fig-tabagismo
+#| fig-cap: "Comportamnetos de cada grupo por sua devida probabilidade"
+df <- reshape2::melt(Mpos_nao)
+df <- transform(df, x=theta1[Var1], y=theta2[Var2])
+df1 <- reshape2::melt(Mpos_sim)
+df1 <- transform(df1, x=theta1[Var1], y=theta2[Var2])
+
+df3 <- cbind(rbind(df,df1), Grupo = rep(c("Tabagismo Negativo", "Tabagismo Positivo"),each=9801))
+
+ggplot(df3[1:9801,], mapping=aes(x,y,z=value, group=Grupo, colour=Grupo))+
+  stat_contour(na.rm = T)+
+  stat_contour(df3[9802:19602,], mapping=aes(x,y,z=value, group=Grupo, colour=Grupo), na.rm = T)+
+  labs(x="Pro. de Estabilidade", y="Prob. de Melhora", title="Comportamento: Tabagismo Negatixo x Tabagismo Positivo")+
+  xlim(0,0.5)+
+  ylim(0.45,0.9)
+  
+```
+:::
+
+Primeiramente chamamos a atenção, para a seção Estimativas, onde pode-se ver que pessoas sem histórico de tabagismo possuem uma menor tendência de piora no seu quadro pulmonar, enquanto que aqueles que possuem histórico, possuem 3x mais chance de piorarem de quadro. Importante notar também que tanto para melhora quanto para estabilidade, não se tem uma grande diferença, algo que está evidente na seção gráficos.
+
+Utilizando um gráfico, é possível ver que os dados estão bem agrupados, com a diferença que aqueles que possuem histórico de tabagismo possuem uma maior variância. Sendo assim, não é aconselhável o acompanhamento para eses grupos, pois as pessoas tem uma tendência de melhorar, e para ambos os grupos essa tendência é relativamente homogênea.
+
+### Hipótese: Tabagismo é um fator de risco ?
+
+Baseado nos dados apresentados, as estimativas dão indícios de que pessoas com histórico de tabagismo possuem um certo grau de piora no seu quadro pulmonar, sendo assim é necessários descobrir, se dado o histórico positivo qual a probabilidade de um indivíduo qualquer, possuir uma piora no seu quadro pulmonar.
+
+$$
+Hipotese: \text{Possui  Historico} < \text{Não  Possui  Historico }
+$$ Baseado na hipótese acima, o esperado é que os pacientes com o histórico positivo de tabagismo, tenham uma queda pequena na taxa para o quadro estável e o de melhora, ou seja ocorre um crescimento na taxa de piora. A taxa de piora foi apurada como $94\%$ para indivíduos com histórico positivo para tabagismo.
+
+Sendo assim, temos evidências que nos levam a acreditar que o tabagismo é um fator de risco a ser observado, durante a infecção da COVID-19.
+
+## Análise: Quadro em relação a Gravidade
+
+Agora checaremos se deve ser aconselhado acompanhamento a pacientes que possuíram complicações durante o período de infecção da COVID-19.
+
+```{r Inicio da analise por gravidade}
+#| echo: false
+dados %>% filter(Gravidade == "SIM") %>% select(TC.inicial,TC.final) -> dados_grav_sim
+dados %>% filter(Gravidade == "NAO") %>% select(TC.inicial,TC.final) -> dados_grav_nao
+
+tbl_grav_nao <- table(dados_grav_nao)
+tbl_grav_sim <- table(dados_grav_sim)
+
+#Contando gravidade = nao
+#cont_grav_nao <- c(Igual,Melhora,Piora)
+cont_grav_nao <- c(0,0,0)
+
+for (i in 1:nrow(tbl_grav_nao)) {
+  for (j in 1:ncol(tbl_grav_nao)) {
+    if(i==j)cont_grav_nao[1]  <- cont_grav_nao[1] + tbl_grav_nao[i,j]
+    if(i>j) cont_grav_nao[2]  <- cont_grav_nao[2] + tbl_grav_nao[i,j]
+    if(i<j) cont_grav_nao[3]  <- cont_grav_nao[3] + tbl_grav_nao[i,j]
+  }
+}
+
+#contando gravidade = sim
+cont_grav_sim <- c(0,0,0)
+for (i in 1:nrow(tbl_grav_sim)) {
+  for (j in 1:ncol(tbl_grav_sim)) {
+    if(i==j)cont_grav_sim[1] <- cont_grav_sim[1] + tbl_grav_sim[i,j]
+    if(i>j) cont_grav_sim[2] <- cont_grav_sim[2] + tbl_grav_sim[i,j]
+    if(i<j) cont_grav_sim[3] <- cont_grav_sim[3] + tbl_grav_sim[i,j]
+  }
+}
+```
+
+```{r calculo da preditiva para a gravidade}
+#| echo: false
+pred_grav_nao <- 0
+pred_grav_sim <- 0
+
+for (i in 1:99) {
+  for (j in 1:99) {
+    pred_grav_nao <- pred_grav_nao + verossimil_tabag(theta1[i], theta2[j], cont_grav_nao[1], cont_grav_nao[2], cont_grav_nao[3])
+  }
+}
+
+for (i in 1:99) {
+  for (j in 1:99) {
+    pred_grav_sim <- pred_grav_sim + verossimil_tabag(theta1[i], theta2[j], cont_grav_sim[1], cont_grav_sim[2], cont_grav_sim[3])
+  }
+}
+```
+
+```{r gerando a posteriori para a gravidade}
+#| echo: false
+#posteriori_nao
+Mpos_grav_nao <- matrix(0,99,99)
+for (i in 1:99) {
+  for (j in 1:99) {
+    Mpos_grav_nao[i,j] <- posteriori_tabag(theta1[i],theta2[j],cont_grav_nao[1],
+                                      cont_grav_nao[2],cont_grav_nao[3],pred_grav_nao)
+  }
+}
+
+#posteriori_sim
+Mpos_grav_sim <- matrix(0,99,99)
+for (i in 1:99) {
+  for (j in 1:99) {
+    Mpos_grav_sim[i,j] <- posteriori_tabag(theta1[i],theta2[j],cont_grav_sim[1],
+                                      cont_grav_sim[2],cont_grav_sim[3],pred_tabagismo_nao)
+  }
+}
+
+```
+
+::: panel-tabset
+#### Sem Gravidade
+
+```{r}
+#| echo: false
+#| label: tbl-confusao-grav-nao
+#| tbl-cap: "Tabela de confusão para pacientes com Gravidade negativa"
+kable(tbl_grav_nao)
+
+#dados_grav_nao %>% tbl_cross()
+```
+
+#### Com Gravidade
+
+```{r}
+#| echo: false
+#| label: tbl-confusao-grav-sim
+#| tbl-cap: "Tabela de contigência para pacientes com Gravidade positiva"
+kable(tbl_grav_sim)
+
+#dados_grav_sim %>% tbl_cross()
+```
+
+```{r simulacao para a gravidade}
+#| echo: false
+#| output: false
+theta3 <- theta1
+
+lista_nao_gravidade <- NULL
+for(i in theta1){
+  for(j in theta2) {
+    lista_nao_gravidade <- rbind( lista_nao_gravidade, c(i,j, posteriori_tabag(i,j, cont_grav_nao[1], cont_grav_nao[2], cont_grav_nao[3],pred_grav_nao)) )
+  }
+}
+lista_gravidade_sim <- NULL
+for(i in theta1){
+  for(j in theta2) {
+    lista_gravidade_sim <- rbind( lista_gravidade_sim, c(i,j, posteriori_tabag(i,j, cont_grav_sim[1], cont_grav_sim[2], cont_grav_sim[3], pred_tabagismo_sim)) )
+  }
+}
+
+# amostrando das posteriori (note que B = 1.000.000, pois deve ser grande)
+indice_theta <-  sample(1:nrow(lista_nao_gravidade), 1000000, T, lista_nao_gravidade[,3])
+indice_phi   <-  sample(1:nrow(lista_gravidade_sim), 1000000, T, lista_gravidade_sim[,3])
+
+mean( rowSums( lista_gravidade_sim[indice_phi,-3] ) < rowSums( lista_nao_gravidade[indice_theta,-3] ) )
+
+```
+
+#### Estimativas
+
+```{r esperanda dado a complicacao}
+#| echo: false
+#| label: tbl-gravidade-negativa
+#| tbl-cap: "Resultados para o quadro dos pacientes, que tiveram Gravidade como negativa"
+#| tbl-cap-location: bottom
+
+
+#Espernca para theta|gravidade como falso
+E_theta1_nao <- 0
+for (i in theta1) {
+  for (j in theta2) {
+    E_theta1_nao <- E_theta1_nao + i*posteriori_tabag(i,j,cont_grav_nao[1],cont_grav_nao[2], cont_grav_nao[3], pred_grav_nao)
+  }
+}
+
+E_theta2_nao <- 0
+for (i in theta1) {
+  for (j in theta2) {
+    E_theta2_nao <- E_theta2_nao + j*posteriori_tabag(i,j,cont_grav_nao[1],cont_grav_nao[2], cont_grav_nao[3], pred_grav_nao)
+  }
+}
+
+Esperanca_nao <- data.frame(Igual=E_theta1_nao*100,Melhora=E_theta2_nao*100,Piora=(1-E_theta1_nao-E_theta2_nao)*100)
+
+#Esperanca para theta|gravidade como sim
+E_theta1_sim <- 0
+for (i in theta1) {
+  for (j in theta2) {
+    E_theta1_sim <- E_theta1_sim + i*posteriori_tabag(i,j,cont_grav_sim[1],cont_grav_sim[2], cont_grav_sim[3], pred_grav_sim)
+  }
+}
+
+E_theta2_sim <- 0
+for (i in theta1) {
+  for (j in theta2) {
+    E_theta2_sim <- E_theta2_sim + j*posteriori_tabag(i,j,cont_grav_sim[1],cont_grav_sim[2], cont_grav_sim[3], pred_grav_sim)
+  }
+}
+
+
+Esperanca_sim <- data.frame(Igual=E_theta1_sim*100, Melhora=E_theta2_sim*100, Piora=(1 - E_theta1_sim - E_theta2_sim)*100)
+
+#Esperancas_gravidade = rbind(Esperanca_nao,Esperanca_sim)
+#row.names(Esperancas_gravidade) <- c("Não Entubado","Entubado")
+#kable(Esperancas_gravidade, digits = 4)
+gravidade_nao <- data.frame(Estimativas=c(mean(lista_nao_gravidade[indice_theta,1]),
+                                          mean(lista_nao_gravidade[indice_theta,2]),
+                                          mean(1-lista_nao_gravidade[indice_theta,1]-
+                                            lista_nao_gravidade[indice_theta,2]))*100,
+                            dp=c(sd(lista_nao_gravidade[indice_theta,1]),
+                                 sd(lista_nao_gravidade[indice_theta,2]),
+                                 sd(1-lista_nao_gravidade[indice_theta,1]-lista_nao_gravidade[indice_theta,1]))*100)
+
+rownames(gravidade_nao) <- c("Estável", "Melhora", "Piora")
+colnames(gravidade_nao) <- c("Estimativa", "Desvio padrão")
+
+kable(gravidade_nao, digits = 2)
+
+```
+
+```{r}
+#| echo: false
+#| label: tbl-resultados-gravidade-positiva
+#| tbl-cap: "Resultados para o quadro dos pacientes, que tiveram Gravidade como positiva"
+
+gravidade_sim <- data.frame(Estimativas=c(mean(lista_gravidade_sim[indice_phi,1]),
+                                          mean(lista_gravidade_sim[indice_phi,2]),
+                                          mean(1-lista_gravidade_sim[indice_phi,1]-
+                                            lista_gravidade_sim[indice_phi,2]))*100,
+                            dp=c(sd(lista_gravidade_sim[indice_phi,1]),
+                                 sd(lista_gravidade_sim[indice_phi,2]),
+                                 sd(1-lista_gravidade_sim[indice_phi,1]-lista_gravidade_sim[indice_phi,1]))*100)
+
+rownames(gravidade_sim) <- c("Estável", "Melhora", "Piora")
+colnames(gravidade_sim) <- c("Estimativa", "Desvio padrão")
+
+kable(gravidade_sim, digits = 2)
+
+```
+
+#### Gráfico
+
+```{r}
+#| echo: false
+#| label: fig-gravidade
+#| fig-cap: "Comportamento para cada grupo de acordo com suas probabilidades"
+
+df <- reshape2::melt(Mpos_grav_nao)
+df <- transform(df, x=theta1[Var1], y=theta2[Var2])
+#df$z<- 1-df$x-df$y
+
+df1 <- reshape2::melt(Mpos_grav_sim)
+df1 <- transform(df1, x=theta1[Var1], y=theta2[Var2])
+# df1$z<- 1-df1$x-df1$y
+df3 <- cbind(rbind(df,df1), Grupo = rep(c("Gravidade Negativo", "Gravidade Positivo"),each=9801))
+
+ggplot(df3[1:9801,], mapping=aes(x,y,z=value, group=Grupo, colour=Grupo))+
+  stat_contour(na.rm = T)+
+  stat_contour(df3[9802:19602,], mapping=aes(x,y,z=value, group=Grupo, colour=Grupo), na.rm = T)+
+  labs(x="Pro. de Estabilidade", y="Prob. de Melhora", title="Comportamento: Gravidade Negatixo x Gravidade Positivo")
+#  xlim(0,0.5)+
+#  ylim(0.45,0.9)
+
+
+```
+:::
+
+Aqui é importante ressaltar que para os grupos de gravidade, cada exame registrado na variável TC.inicial e TC.final, possuem uma diferença de 60 dias, nesse período quem tem uma complicação possui uma maior chance de sair dela, ou seja, deixa a condição estável e passa para a de melhora, poucos serão aqueles que não irão melhorar.
+
+Por essa razão é possível notar uma relação inversa entre a condição estável e a condição melhora, adicionado ao fato que pessoas que estão com Gravidade negativa, possuem uma tendência de continuarem estáveis, por isso uma menor variâcia é registrada para esse grupo. Sendo assim nos resta chamar atenção a uma taxa de piora de 7% para os que possuem Gravidade positiva, e por fim não aconselhamos o acompanhamento desses pacientes.
+
+### Hipótese: A Gravidade é um fator de risco ?
+
+Estimando a partir dos dados, foi possível notar na tabela 9 que possuímos um grau maior de piora nos pacientes entubados. Agora é preciso saber qual a probabilidade de um paciente piorar devido a ocorrência de complicações durante o tratamento da COVID-19, ou seja:
+
+$$
+Hipótese: Com \ Complicações <    Sem \ Complicações
+$$ Essa hipótese se baseia no fato de que, caso o paciente não tenha melhorado, ou se mantido estável, então o indivíduo só pode ter piorado o seu quadro. Logo é possível afirmar que aqueles com registro de complicaçõão possuem $91\%%$ de probabilidade de terem uma piora no seu quadro pulmonar, sendo assim temos evidências de que Gravidade é um fator de risco.

@@ -2,7 +2,7 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "relatorio_github_pages",
+    "title": "Repositório Inf. Bayseana",
     "section": "",
     "text": "Preface\nThis is a Quarto book.\nTo learn more about Quarto books visit https://quarto.org/docs/books.\n\n1 + 1\n\n[1] 2"
   },
@@ -26,5 +26,47 @@
     "title": "References",
     "section": "",
     "text": "Knuth, Donald E. 1984. “Literate Programming.” Comput.\nJ. 27 (2): 97–111. https://doi.org/10.1093/comjnl/27.2.97."
+  },
+  {
+    "objectID": "relatorio1.html",
+    "href": "relatorio1.html",
+    "title": "3  Relatório: Acompanhamento pós COVID-19",
+    "section": "",
+    "text": "4 Indicação de acompanhamento de pacientes pós COVID-19\nUm projeto submetido ao LabEst teve o objetivo de verificar se há indicação de acompanhamento de pacientes pós Covid-19 em relação a gravidade da tomografia computadorizada de tórax relacionada à função pulmonar, devido à possibilidade da persistência de alterações sequelares pulmonares a partir dos exames."
+  },
+  {
+    "objectID": "relatorio1.html#análise-descritiva",
+    "href": "relatorio1.html#análise-descritiva",
+    "title": "3  Relatório: Acompanhamento pós COVID-19",
+    "section": "4.1 Análise descritiva",
+    "text": "4.1 Análise descritiva\nTemos 4 colunas nesses dados, Tabagismo, Gravidade, TC.inicial e TC.final.\n\nTabagismo: Variável dicotômica indicando se há histórico de tabagismo.\nGravidade: Variável dicotômica indicando se houveram complicações com o paciente durante a doença, como intubação.\nTC.inicial: variável categórica com a indicação da gravidade diagosticada via exame de imagem, realizada enquanto o paciente estava com COVID-19.\nTC.final: Variável categórica com a indicação da gravidade diagosticada via exame de imagem, realizada com pelo menos 60 dias após o término da doença COVID-19.\n\nVamos analisar os dados para TC.inicial e TC.final.\n\nTC.InicialTC.FinalMatriz De Confusão\n\n\n\n\n\n\n\nFigure 4.1: Grafico de barras para a variável categórica TC.inicial\n\n\n\n\n\n\n\n\n\n\n\nFigure 4.2: Gráfico de barras para a variável categórica TC.final\n\n\n\n\n\n\n\n\n\n\nTable 4.1: Matriz de Confusão\n\n\n\nNenhum\nMinimo\nLeve\nModerado\nSequela\n\n\n\n\nNenhum\n6\n5\n0\n0\n0\n\n\nMinimo\n23\n29\n0\n0\n0\n\n\nLeve\n11\n65\n9\n0\n0\n\n\nModerado\n0\n25\n23\n1\n4\n\n\nGrave\n0\n3\n0\n0\n0\n\n\n\n\n\n\n\n\n\nComo foi possível ver, temos poucos dados para cada uma das gravidades, nas variáveis categóricas TC.inicial e TC.final, logo foi preciso utilizar um método alternativo para olhar o problema, pois caso contrário não haveria amostras o suficiente para as análises, ficariam imprecisas. A maneira encontrada foi abordar o problema de modo a ter apenas 3 classes para o quadro pulmonar do indivíduo, igual ou estável, melhora e piora. Aqueles que estão na diagonal principal serão vistos como os que mantém sua condição como Igual ou estável, os que estão abaixo da diagonal principal representam os indivíduos que melhoraram e por fim aqueles acima da diagonal principal representam os que tiveram piora de quadro."
+  },
+  {
+    "objectID": "relatorio1.html#quadro-do-paciente",
+    "href": "relatorio1.html#quadro-do-paciente",
+    "title": "3  Relatório: Acompanhamento pós COVID-19",
+    "section": "4.2 Quadro do paciente",
+    "text": "4.2 Quadro do paciente\n\n4.2.0.0.1 Estimativas pontuais\nO valor médio estimado para cada classe foi de:\n\n\nTable 4.2: Média para o quadro pulmonar do indivíduo.\n\n\nIgual\nMelhora\nPiora\n\n\n\n\n0.2222224\n0.7294691\n0.04830851"
+  },
+  {
+    "objectID": "relatorio1.html#análise-quadro-em-relação-ao-tabaginsmo",
+    "href": "relatorio1.html#análise-quadro-em-relação-ao-tabaginsmo",
+    "title": "3  Relatório: Acompanhamento pós COVID-19",
+    "section": "4.3 Análise: Quadro em relação ao Tabaginsmo",
+    "text": "4.3 Análise: Quadro em relação ao Tabaginsmo\nAgora é preciso investigar se dado o histórico de tabagismo da pessoa, o indivíduo será afetado ou não.\n\nNão fumantesFumantesEstimativasGráficos\n\n\n\n\n\n\nTable 4.3: Tabela de contigência entre TC.inicial e TC.final\n\n\n\nNenhum\nMinimo\nLeve\nModerado\nSequela\n\n\n\n\nNenhum\n6\n3\n0\n0\n0\n\n\nMinimo\n18\n21\n0\n0\n0\n\n\nLeve\n7\n41\n6\n0\n0\n\n\nModerado\n0\n20\n17\n0\n1\n\n\nGrave\n0\n3\n0\n0\n0\n\n\n\n\n\n\n\n\n\n\n\n\nTable 4.4: Tabela de contigência entre TC.inicial e TC.final\n\n\n\nNenhum\nMinimo\nLeve\nModerado\nSequela\n\n\n\n\nNenhum\n0\n2\n0\n0\n0\n\n\nMinimo\n5\n8\n0\n0\n0\n\n\nLeve\n4\n24\n3\n0\n0\n\n\nModerado\n0\n5\n6\n1\n3\n\n\nGrave\n0\n0\n0\n0\n0\n\n\n\n\n\n\n\n\n[1] 0.944132\n\n\n\n\n\n\n\n\nTable 4.5: Resultado para o quadro dos pacientes, sem histórico de tabagismo em porcentagem\n\n\n\nEstimativa\nDesvio padrão\n\n\n\n\nEstável\n23.29\n3.49\n\n\nMelhora\n73.29\n3.65\n\n\nPiora\n3.42\n6.97\n\n\n\n\n\n\n\n\n\n\nTable 4.6: Resultados para o quadro dos pacientes, dado o histórico positivo para tabagismo em porcentagem\n\n\n\nEstimativa\nDesvio padrão\n\n\n\n\nEstável\n20.30\n4.99\n\n\nMelhora\n70.32\n5.67\n\n\nPiora\n9.38\n9.98\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 4.3: Comportamnetos de cada grupo por sua devida probabilidade\n\n\n\n\n\n\n\nPrimeiramente chamamos a atenção, para a seção Estimativas, onde pode-se ver que pessoas sem histórico de tabagismo possuem uma menor tendência de piora no seu quadro pulmonar, enquanto que aqueles que possuem histórico, possuem 3x mais chance de piorarem de quadro. Importante notar também que tanto para melhora quanto para estabilidade, não se tem uma grande diferença, algo que está evidente na seção gráficos.\nUtilizando um gráfico, é possível ver que os dados estão bem agrupados, com a diferença que aqueles que possuem histórico de tabagismo possuem uma maior variância. Sendo assim, não é aconselhável o acompanhamento para eses grupos, pois as pessoas tem uma tendência de melhorar, e para ambos os grupos essa tendência é relativamente homogênea.\n\n4.3.1 Hipótese: Tabagismo é um fator de risco ?\nBaseado nos dados apresentados, as estimativas dão indícios de que pessoas com histórico de tabagismo possuem um certo grau de piora no seu quadro pulmonar, sendo assim é necessários descobrir, se dado o histórico positivo qual a probabilidade de um indivíduo qualquer, possuir uma piora no seu quadro pulmonar.\n\\[\nHipotese: \\text{Possui  Historico} &lt; \\text{Não  Possui  Historico }\n\\] Baseado na hipótese acima, o esperado é que os pacientes com o histórico positivo de tabagismo, tenham uma queda pequena na taxa para o quadro estável e o de melhora, ou seja ocorre um crescimento na taxa de piora. A taxa de piora foi apurada como \\(94\\%\\) para indivíduos com histórico positivo para tabagismo.\nSendo assim, temos evidências que nos levam a acreditar que o tabagismo é um fator de risco a ser observado, durante a infecção da COVID-19."
+  },
+  {
+    "objectID": "relatorio1.html#análise-quadro-em-relação-a-gravidade",
+    "href": "relatorio1.html#análise-quadro-em-relação-a-gravidade",
+    "title": "3  Relatório: Acompanhamento pós COVID-19",
+    "section": "4.4 Análise: Quadro em relação a Gravidade",
+    "text": "4.4 Análise: Quadro em relação a Gravidade\nAgora checaremos se deve ser aconselhado acompanhamento a pacientes que possuíram complicações durante o período de infecção da COVID-19.\n\nSem GravidadeCom GravidadeEstimativasGráfico\n\n\n\n\n\n\nTable 4.7: Tabela de confusão para pacientes com Gravidade negativa\n\n\n\nNenhum\nMinimo\nLeve\nModerado\nSequela\n\n\n\n\nNenhum\n5\n2\n0\n0\n0\n\n\nMinimo\n21\n22\n0\n0\n0\n\n\nLeve\n6\n28\n5\n0\n0\n\n\nModerado\n0\n3\n5\n0\n0\n\n\nGrave\n0\n0\n0\n0\n0\n\n\n\n\n\n\n\n\n\n\n\n\nTable 4.8: Tabela de contigência para pacientes com Gravidade positiva\n\n\n\nNenhum\nMinimo\nLeve\nModerado\nSequela\n\n\n\n\nNenhum\n1\n3\n0\n0\n0\n\n\nMinimo\n2\n7\n0\n0\n0\n\n\nLeve\n5\n37\n4\n0\n0\n\n\nModerado\n0\n22\n18\n1\n4\n\n\nGrave\n0\n3\n0\n0\n0\n\n\n\n\n\n\n\n\n\n\n\n\nTable 4.9: Resultados para o quadro dos pacientes, que tiveram Gravidade como negativa\n\n\n\nEstimativa\nDesvio padrão\n\n\n\n\nEstável\n32.99\n4.68\n\n\nMelhora\n63.99\n4.77\n\n\nPiora\n3.01\n9.36\n\n\n\n\n\n\n\n\n\n\nTable 4.10: Resultados para o quadro dos pacientes, que tiveram Gravidade como positiva\n\n\n\nEstimativa\nDesvio padrão\n\n\n\n\nEstável\n12.73\n3.16\n\n\nMelhora\n80.00\n3.80\n\n\nPiora\n7.27\n6.32\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 4.4: Comportamento para cada grupo de acordo com suas probabilidades\n\n\n\n\n\n\n\nAqui é importante ressaltar que para os grupos de gravidade, cada exame registrado na variável TC.inicial e TC.final, possuem uma diferença de 60 dias, nesse período quem tem uma complicação possui uma maior chance de sair dela, ou seja, deixa a condição estável e passa para a de melhora, poucos serão aqueles que não irão melhorar.\nPor essa razão é possível notar uma relação inversa entre a condição estável e a condição melhora, adicionado ao fato que pessoas que estão com Gravidade negativa, possuem uma tendência de continuarem estáveis, por isso uma menor variâcia é registrada para esse grupo. Sendo assim nos resta chamar atenção a uma taxa de piora de 7% para os que possuem Gravidade positiva, e por fim não aconselhamos o acompanhamento desses pacientes.\n\n4.4.1 Hipótese: A Gravidade é um fator de risco ?\nEstimando a partir dos dados, foi possível notar na tabela 9 que possuímos um grau maior de piora nos pacientes entubados. Agora é preciso saber qual a probabilidade de um paciente piorar devido a ocorrência de complicações durante o tratamento da COVID-19, ou seja:\n\\[\nHipótese: Com \\ Complicações &lt;    Sem \\ Complicações\n\\] Essa hipótese se baseia no fato de que, caso o paciente não tenha melhorado, ou se mantido estável, então o indivíduo só pode ter piorado o seu quadro. Logo é possível afirmar que aqueles com registro de complicaçõão possuem \\(91\\%%\\) de probabilidade de terem uma piora no seu quadro pulmonar, sendo assim temos evidências de que Gravidade é um fator de risco."
+  },
+  {
+    "objectID": "relatorios.html",
+    "href": "relatorios.html",
+    "title": "Entregas relacionadas as aulas práticas",
+    "section": "",
+    "text": "Cada página está relacionada com um relatório entregue."
   }
 ]
