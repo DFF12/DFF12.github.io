@@ -3,6 +3,7 @@ title: "Relatório: Acompanhamento pós COVID-19"
 author: "Daniel Figueira Ferreira"
 format: html
 editor: visual
+lang: pt
 toc: true
 toc-depth: 5
 ---

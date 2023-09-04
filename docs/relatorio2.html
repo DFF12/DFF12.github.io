@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt" xml:lang="pt"><head>
 
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.3.433">
@@ -7,9 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Daniel Figueira Ferreira">
-<meta name="dcterms.date" content="2023-09-01">
 
-<title>Repositório Inf. Bayseana</title>
+<title>Repositório Inf. Bayseana - 4&nbsp; Relatório 2: Número de mortes por coice de cavalo</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -22,40 +21,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
@@ -66,7 +31,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./intro.html" rel="next">
+<link href="./references.html" rel="next">
+<link href="./relatorio1.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -84,19 +50,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   "type": "textbox",
   "limit": 20,
   "language": {
-    "search-no-results-text": "No results",
-    "search-matching-documents-text": "matching documents",
-    "search-copy-link-title": "Copy link to search",
-    "search-hide-matches-text": "Hide additional matches",
-    "search-more-match-text": "more match in this document",
-    "search-more-matches-text": "more matches in this document",
-    "search-clear-button-title": "Clear",
-    "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit",
-    "search-label": "Search"
+    "search-no-results-text": "Nenhum resultado",
+    "search-matching-documents-text": "documentos correspondentes",
+    "search-copy-link-title": "Copiar link para a busca",
+    "search-hide-matches-text": "Esconder correspondências adicionais",
+    "search-more-match-text": "mais correspondência neste documento",
+    "search-more-matches-text": "mais correspondências neste documento",
+    "search-clear-button-title": "Limpar",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Procurar"
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 </head>
 
@@ -106,11 +74,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Preface</a></li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./relatorios.html">Entregas relacionadas as aulas práticas</a></li><li class="breadcrumb-item"><a href="./relatorio2.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Relatório 2: Número de mortes por coice de cavalo</span></a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
@@ -129,14 +97,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
         <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
+        <div id="quarto-search" class="" title="Procurar"></div>
         </div>
         </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Preface</span></a>
   </div>
 </li>
@@ -156,7 +124,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="sidebar-item-container"> 
             <a href="./relatorios.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Entregas relacionadas as aulas práticas</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Alternar seção">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
@@ -169,8 +137,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./relatorio2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Relatório 2</span></span></a>
+  <a href="./relatorio2.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Relatório 2: Número de mortes por coice de cavalo</span></span></a>
   </div>
 </li>
       </ul>
@@ -188,10 +156,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">Table of contents</h2>
+    <h2 id="toc-title">Índice</h2>
    
   <ul>
-  <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a></li>
+  <li><a href="#introdução" id="toc-introdução" class="nav-link active" data-scroll-target="#introdução"><span class="header-section-number">4.1</span> Introdução</a></li>
+  <li><a href="#objetivos" id="toc-objetivos" class="nav-link" data-scroll-target="#objetivos"><span class="header-section-number">4.2</span> Objetivos</a></li>
+  <li><a href="#desenvolvimento" id="toc-desenvolvimento" class="nav-link" data-scroll-target="#desenvolvimento"><span class="header-section-number">4.3</span> Desenvolvimento</a></li>
   </ul>
 </nav>
     </div>
@@ -200,7 +170,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Repositório Inf. Bayseana</h1>
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Relatório 2: Número de mortes por coice de cavalo</span></h1>
 </div>
 
 
@@ -208,18 +178,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="quarto-title-meta">
 
     <div>
-    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-heading">Autor</div>
     <div class="quarto-title-meta-contents">
              <p>Daniel Figueira Ferreira </p>
           </div>
   </div>
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">September 1, 2023</p>
-    </div>
-  </div>
   
     
   </div>
@@ -227,16 +191,180 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<section id="preface" class="level1 unnumbered">
-<h1 class="unnumbered">Preface</h1>
-<p>This is a Quarto book.</p>
-<p>To learn more about Quarto books visit <a href="https://quarto.org/docs/books" class="uri">https://quarto.org/docs/books</a>.</p>
+<section id="introdução" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="introdução"><span class="header-section-number">4.1</span> Introdução</h2>
+<p>Em seu famoso livro Lei dos Pequenos Números, Bortkiewicz (1898) mostra como o número de mortes por coice de cavalo se aproxima do modelo Poisson. Os dados originais foram organizados em uma tabela de dupla entrada, com os anos nas linhas (de 1875 a 1894, compreendendo 20 anos) e os batalhões nas colunas (16 ao todo). Os dados que iremos analisar (<code>HorseKicks</code>, do pacote <code>vcd</code>) foram compilados por Fisher (1925), considerando dez batalhões com o mesmo tipo de organização. Cada cela da tabela (batalhão-ano) é considerada uma realização de uma variável aleatória, o que implica em uma amostra de tamanho 200.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 2</code></pre>
+<div class="cell-output-display">
+<div id="tbl-dados" class="anchored">
+<table class="table table-sm table-striped small">
+<caption>Tabela&nbsp;4.1: Frequência de morte por coice de cavalo</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">n_deaths</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">frequencia</td>
+<td style="text-align: right;">109</td>
+<td style="text-align: right;">65</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
+</div>
+</section>
+<section id="objetivos" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="objetivos"><span class="header-section-number">4.2</span> Objetivos</h2>
+<p>Para este relatóriom os seguintes pontos devem ser realizados.</p>
+<ol type="1">
+<li><p>Mostrar que a priori <span class="math inline">\(Gama(a,b)\)</span> é conjugada para o modelo <span class="math inline">\(Poisson(\lambda)\)</span>.</p></li>
+<li><p>Escolher valores razoáveis para a e b de modo a ter uma priori vaga.</p></li>
+<li><p>Encontrar uma estimativa pontual e intervalar para <span class="math inline">\(\lambda\)</span></p></li>
+<li><p>Realizar uma análise comparando as frequências relativas simuladas a partir da preditiva a posteriori com as frequências da amostra original.</p></li>
+<li><p>Encontrar a priori de Jeffreys, mostrar que a posteriori é própria e repetir os passos anteriores.</p></li>
+</ol>
+</section>
+<section id="desenvolvimento" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="desenvolvimento"><span class="header-section-number">4.3</span> Desenvolvimento</h2>
+<ol type="1">
+<li>Mostrar que a priori <span class="math inline">\(Gama(a,b)\)</span> é conjugada para o modelo <span class="math inline">\(Poisson(\lambda)\)</span>.</li>
+</ol>
+<p>Para isso, provamos que a poisson pertence a família exponencial, onde assume a forma <span class="math inline">\(L(\lambda) = \frac{1}{\prod{x!}}e^{-\lambda n} e^{\sum{x}log{\lambda}}\)</span>. Onde obtemos os membros que compõem a família exponencial:</p>
+<p><span class="math display">\[\begin{equation}\label{xx}
+  \begin{split}
+    &amp;h(x)= \frac{1}{\prod{x}}\\
+    &amp;a(\lambda)=e^{\lambda n}\\
+    &amp;w(\lambda)=log{\lambda}\\
+    &amp;T(x)=\sum{x}
+  \end{split}
+\end{equation}\]</span> Sendo assim provamos que a poisson pertence a família exponencial.</p>
+<p>Deixando a verossimilhança apenas em função de <span class="math inline">\(\lambda\)</span> ficamos com <span class="math inline">\(L(\lambda) \propto \lambda^{\sum{x_i}}e^{-\lambda{n}}\)</span>, essa que por sua vez possui um núcleo semelhante ao da <span class="math inline">\(\lambda \sim Gama(a,b)\)</span> que é dado abaixo por:</p>
+<p><span class="math display">\[f(\lambda) \propto \lambda^{a-1}e^{-b\lambda}\]</span></p>
+<p>Logo provamos que o modelo conjugado da Poisson é a Gama, e que resulta na posteriori: <span class="math display">\[\lambda|x \sim Gama(a+ \sum{x_i}, b + n)\]</span></p>
+<p>O <span class="math inline">\(\sum{x}\)</span> corresponde ao numero de pessoas que vieram a falecer, e o somatório da multiplicação entre a quantidade de ocorrências pelo seu nDeaths é o resultado para a estatística suficiente.</p>
+<hr>
+<ol start="2" type="1">
+<li>Escolher valores razoáveis para a e b de modo a ter uma priori vaga.</li>
+</ol>
+<p>Os valores escolhidos foram <span class="math inline">\(a = 0.001\)</span> e <span class="math inline">\(b = 0.001\)</span>.</p>
+<p><span class="math inline">\(\lambda \sim Gama(a,\ b)\)</span></p>
+<p>Média e variância para a priori:</p>
+<p><span class="math display">\[\begin{equation}\label{yy}
+  \begin{split}
+    &amp;E(\lambda)=\frac{a}{b}=\frac{0.001}{0.001}=1\\
+    &amp;Var(\lambda)=\frac{a}{b^2}=\frac{0.001}{0.001^2}= 1000
+  \end{split}
+\end{equation}\]</span></p>
+<hr>
+<ol start="3" type="1">
+<li>Encontrar uma estimativa pontual e intervalar para <span class="math inline">\(\lambda\)</span> a posteriori.</li>
+</ol>
+<p>A estimativa pontual para <span class="math inline">\(\lambda\)</span> é:</p>
+<p><span class="math display">\[\begin{equation}\label{zz}
+  \begin{split}
+    &amp;E(\lambda|x)= \frac{\alpha}{\beta}=\frac{a+ \sum{x_i}}{b + n} = \frac{122.001}{200.001} = 0.6100019\\
+    &amp;Var(\lambda|x)= \frac{\alpha}{\beta^2}=\frac{a+ \sum{x_i}}{{(b + n)}^2} = \frac{122.001}{200.001^2} = 0.003049994
+  \end{split}
+\end{equation}\]</span></p>
+<p>Intervalo de Credibilidade:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tbl-interv-credibilidade-1" class="anchored">
+<table class="table table-sm table-striped small">
+<caption>Tabela&nbsp;4.2: Intervalo de Credibilidade para lambda</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">2.5%</th>
+<th style="text-align: right;">97.5%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.5065702</td>
+<td style="text-align: right;">0.7228996</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<hr>
+<ol start="4" type="1">
+<li>Realizar uma análise comparando as frequências relativas simuladas a partir da preditiva a posteriori com as frequências da amostra original.</li>
+</ol>
+<div class="cell fig-cap-location-top">
+<div class="cell-output-display">
+<div id="fig-boxplot-posteriori-coice-cavalo-conjugada" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="relatorio2_files/figure-html/fig-boxplot-posteriori-coice-cavalo-conjugada-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figura&nbsp;4.1: Boxplots para a proporção do número de mortes por coice de cavalo</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Pelo gráfico é possível ver que as frequências relativas registradas pela simulação estão de acordo com as frequências obtidas da amostra original, sendo assim podemos dizer que a poisson é um modelo adequado.</p>
+<hr>
+<ol start="5" type="1">
+<li>Encontrar a priori de Jeffreys, mostrar que a posteriori é própria e repetir os passos anteriores. A posteriori encontrada foi</li>
+</ol>
+<p>A priori de Jeffreys obtida para a poisson foi: <span class="math display">\[f(\lambda)=\lambda^{-1/2}\]</span> Para a posteriori ficamos com:</p>
+<p><span class="math display">\[\begin{equation}\label{posteriori_jeffreys}
+  \begin{split}
+    f(\lambda)&amp;=\frac{L(\lambda)f(\lambda)}{f(x)}\\
+    &amp; \propto L(\lambda)f(\lambda)\\
+    &amp; = \frac{e^{-\lambda n} \lambda^{\sum{x_i}}}{\prod{x_i}} \lambda^{-\frac{1}{2}}\\
+    &amp; \propto \lambda^{\sum{x_i} +\frac{1}{2} -1} e^{-\lambda n}
+  \end{split}
+\end{equation}\]</span></p>
+<p>Logo, a partir de uma priori imprópria, obtivemos uma posteriori própria com distribuição <span class="math inline">\(Gama(\sum{x_i}+0.5, n)\)</span>.</p>
+<p>Estimativa pontual para <span class="math inline">\(\lambda\)</span>: <span class="math display">\[\begin{equation}\label{estimativa_pontual_jeffrey}
+  \begin{split}
+    &amp;E(\lambda|x)= \frac{\alpha}{\beta}=\frac{0.5 + \sum{x_i}}{n} = \frac{122.5}{200} = 0.6125\\
+    &amp;Var(\lambda|x)= \frac{\alpha}{\beta^2}=\frac{0.5 + \sum{x_i}}{{n}^2} = \frac{122.5}{200^2} = 0.0030625
+  \end{split}
+\end{equation}\]</span></p>
+<p>Intervalo de Credibilidade:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tbl-intervalo-credibilidade-jeffreys" class="anchored">
+<table class="table table-sm table-striped small">
+<caption>Tabela&nbsp;4.3: Intervalo de credibilidade para lambda com priori de Jeffrey</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">2.5%</th>
+<th style="text-align: right;">97.5%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.5088464</td>
+<td style="text-align: right;">0.7256196</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell fig-cap-location-top">
+<div class="cell-output-display">
+<div id="fig-boxplot-posteriori-coice-cavalo-jeffreys" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="relatorio2_files/figure-html/fig-boxplot-posteriori-coice-cavalo-jeffreys-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figura&nbsp;4.2: Boxplots para a proporção do número de mortes por coice de cavalo</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Novamente é possível ver que o modelo poisson é adequado para os dados.</p>
 
 
 </section>
@@ -296,12 +424,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // flash "checked"
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
+    button.setAttribute("title", "Copiada");
     let tooltip;
     if (window.bootstrap) {
       button.setAttribute("data-bs-toggle", "tooltip");
       button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
+      button.setAttribute("data-bs-title", "Copiada");
       tooltip = new bootstrap.Tooltip(button, 
         { trigger: "manual", 
           customClass: "code-copy-button-tooltip",
@@ -477,10 +605,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="./relatorio1.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Relatório: Acompanhamento pós COVID-19</span></span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./intro.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./references.html" class="pagination-link">
+        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

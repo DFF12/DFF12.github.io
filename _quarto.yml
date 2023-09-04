@@ -6,7 +6,6 @@ book:
   title: "Repositório Inf. Bayseana"
   author: "Daniel Figueira Ferreira"
   date: "9/1/2023"
-  language: pt
   chapters:
     - index.qmd
     - intro.qmd
@@ -14,6 +13,7 @@ book:
     - part: relatorios.qmd
       chapters: 
         - relatorio1.qmd
+        - relatorio2.qmd
     - references.qmd
 
 bibliography: references.bib
