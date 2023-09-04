@@ -7,9 +7,6 @@ book:
   author: "Daniel Figueira Ferreira"
   date: "9/1/2023"
   chapters:
-    - index.qmd
-    - intro.qmd
-    - summary.qmd
     - part: relatorios.qmd
       chapters: 
         - relatorio1.qmd
