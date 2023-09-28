@@ -246,23 +246,23 @@ ul.task-list li input[type="checkbox"] {
 <p>Os valores escolhidos foram <span class="math inline">\(a = 0.001\)</span> e <span class="math inline">\(b = 0.001\)</span>.</p>
 <p><span class="math inline">\(\lambda \sim Gama(a,\ b)\)</span></p>
 <p>Média e variância para a priori:</p>
-<p><span class="math display">\[\begin{equation}\label{yy}
+<span class="math display">\[\begin{equation}\label{yy}
   \begin{split}
     &amp;E(\lambda)=\frac{a}{b}=\frac{0.001}{0.001}=1\\
     &amp;Var(\lambda)=\frac{a}{b^2}=\frac{0.001}{0.001^2}= 1000
   \end{split}
-\end{equation}\]</span></p>
+\end{equation}\]</span>
 <hr>
 <ol start="3" type="1">
 <li>Encontrar uma estimativa pontual e intervalar para <span class="math inline">\(\lambda\)</span> a posteriori.</li>
 </ol>
 <p>A estimativa pontual para <span class="math inline">\(\lambda\)</span> é:</p>
-<p><span class="math display">\[\begin{equation}\label{zz}
+<span class="math display">\[\begin{equation}\label{zz}
   \begin{split}
     &amp;E(\lambda|x)= \frac{\alpha}{\beta}=\frac{a+ \sum{x_i}}{b + n} = \frac{122.001}{200.001} = 0.6100019\\
     &amp;Var(\lambda|x)= \frac{\alpha}{\beta^2}=\frac{a+ \sum{x_i}}{{(b + n)}^2} = \frac{122.001}{200.001^2} = 0.003049994
   \end{split}
-\end{equation}\]</span></p>
+\end{equation}\]</span>
 <p>Intervalo de Credibilidade:</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -305,14 +305,14 @@ ul.task-list li input[type="checkbox"] {
 <li>Encontrar a priori de Jeffreys, mostrar que a posteriori é própria e repetir os passos anteriores. A posteriori encontrada foi</li>
 </ol>
 <p>A priori de Jeffreys obtida para a poisson foi: <span class="math display">\[f(\lambda)=\lambda^{-1/2}\]</span> Para a posteriori ficamos com:</p>
-<p><span class="math display">\[\begin{equation}\label{posteriori_jeffreys}
+<span class="math display">\[\begin{equation}\label{posteriori_jeffreys}
   \begin{split}
     f(\lambda)&amp;=\frac{L(\lambda)f(\lambda)}{f(x)}\\
     &amp; \propto L(\lambda)f(\lambda)\\
     &amp; = \frac{e^{-\lambda n} \lambda^{\sum{x_i}}}{\prod{x_i}} \lambda^{-\frac{1}{2}}\\
     &amp; \propto \lambda^{\sum{x_i} +\frac{1}{2} -1} e^{-\lambda n}
   \end{split}
-\end{equation}\]</span></p>
+\end{equation}\]</span>
 <p>Logo, a partir de uma priori imprópria, obtivemos uma posteriori própria com distribuição <span class="math inline">\(Gama(\sum{x_i}+0.5, n)\)</span>.</p>
 <p>Estimativa pontual para <span class="math inline">\(\lambda\)</span>: <span class="math display">\[\begin{equation}\label{estimativa_pontual_jeffrey}
   \begin{split}
