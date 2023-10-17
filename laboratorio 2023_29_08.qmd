@@ -1,0 +1,225 @@
+---
+title: "laboratorio 2020_3_29_08"
+format: html
+editor: visual
+---
+
+```{r}
+#| echo: false
+#| output: false
+require(parallel)
+require(knitr)
+#require()
+```
+
+```{r}
+
+#Tamanho dad amostra = 150
+df <- data.frame(n_acaro=seq(0,8,1),
+                 frequencia=c(70,38,17,10,9,3,2,1,0))
+df
+```
+
+```{r}
+#Escolhendo a e b
+a <- 0.0001
+b <- 0.0001
+
+#n e somatorio de x
+n <- 150
+estat_suficiente <- sum(df$n_acaro*df$frequencia)
+x <- df$n_acaro*df$frequencia
+```
+
+Olhando a conjugada
+
+```{r}
+#Para uma gama(a+sum(x), b+n)
+
+#Esperanca
+lambda_post <- (a + estat_suficiente)/(b*n)
+lambda_post
+
+#variancia 
+var_post <- (a+estat_suficiente)/(b+n)**2
+var_post
+
+```
+
+Simulando a posteriori
+
+```{r}
+#Gerando amostras observadas
+
+lambdas <- rgamma(200,a + estat_suficiente, b +n)
+
+par <- function(ind) {
+  lambda_simul_i <- rgamma(200, a + estat_suficiente, b +n)
+  x <- rpois(200,lambda_simul_i)
+#  c(mean(x==0), mean(x==1), mean(x==2), mean(x==3), mean(x==4))
+  c(mean(x==0), mean(x==1), mean(x==2), mean(x==3), mean(x==4),
+    mean(x==5), mean(x==6), mean(x==7), mean(x==8))
+  
+}
+teste <- mclapply(1:100000, par, mc.cores = 3)
+dt <- as.data.frame(matrix(unlist(teste), ncol = 9, byrow = TRUE))
+
+
+head((teste),2)
+
+boxplot(dt)
+points(1:9,df$frequencia/150, pch=19, col="red")
+```
+
+```{r}
+
+
+# pos_phi <- function(phi){
+#   exp((0.01-1)*log(phi) -0.01*phi + lbeta(n*phi + a, estat_suficiente + b) -n*lgamma(phi) + sum(lgamma(phi+x)) )
+# }
+# priori <- function(phi) {
+#   exp( (0.01-1)*log(phi) -0.01*phi)
+# }
+# 
+# 
+# index <-seq(0.5,1.5,0.01)
+# for (i in index) {
+#   cat(pos_phi(i), i, "\n")
+# }
+
+#Aparentemente o valor mais verossimil e o 1
+```
+
+```{r}
+# c_integracao <- integrate(pos_phi,0,Inf)
+# curve(sapply(x, pos_phi), 0.5,1.5)
+# 
+# 
+# optimise(f_densidade_pos,c(0,2), maximum = T)
+# 
+# (fx <- integrate(f_densidade_pos,0,Inf))
+# 
+# rgamma(1000)
+
+```
+
+```{r}
+#alpha/beta < 0.95
+# curve(sapply(x, pos_phi), 0.5,1.5)
+# 
+# curve(dgamma(x, shape = 0.01, scale  = 0.01), from = 0, to = 2,  xlim = c(0,1))
+# curve(dgamma(x, shape = 0.01, rate  = 0.01), from = 0, to = 2,  xlim = c(0,1))
+# curve(dbeta(x, shape1  = 3, shape2 = 3), from = 0, to = 2,  xlim = c(0,1))
+
+
+var(rbeta(2000, 2,2))
+```
+
+```{r}
+# v <- NULL
+# for (i in 1:500) {
+#   betabin <- rbnbinom(2000, 1, alpha = 1*n+a, beta = sum(x)+b)
+#   result <- c(mean(betabin==0), mean(betabin==1), mean(betabin==2), mean(betabin==3), mean(betabin==4),
+#     mean(betabin==5), mean(betabin==6), mean(betabin==7), mean(betabin==8))
+#   v <- rbind(v, result)
+# }
+# v
+# boxplot(v)
+# points(1:9,df$frequencia/150, pch=19, col="red")
+
+```
+
+```{r}
+
+bayesBinom <- function(x, t=0.3, B=10, priori.phi ='G',a0=1,b0=.1, a1=1,b1=1, n) {
+  #0. Carregando pacote
+  require(MASS)
+  require(extraDistr)
+  #1. Informação da amostra
+  #n <- length(x)
+  sum_x <- sum(x)
+
+  opt <- fitdistr(x, 'negative binomial')
+  phi_inicial <- opt$estimate[1]
+  #2. priori escolhida para a posteriori
+  if(priori.phi == 'G') {
+    logPost <- function(phi) {
+      sum(lgamma(phi+x)) -n*lgamma(phi) + lbeta(n*phi+a0, sum_x+ b0) + 
+        dgamma(phi, a1, b1, log = T)
+    }
+  }
+  #3. Simulacao
+  #metropolis hastings
+  phi <- phi_inicial
+  cont <- 0
+  for (i in 1:B) {
+    ams_proposta <- rgamma(1, phi[i]*t, t) #Simulando da proposta
+    l_numerador <- logPost(ams_proposta) + dgamma(phi[i], ams_proposta*t, t, log = T)
+    l_denominador <-  logPost(phi[i]) + dgamma(ams_proposta, phi[i]*t,t, log = T)
+    prob <- min(1, exp(l_numerador-l_denominador))
+    
+    u <- runif(1)
+    ifelse(u < prob, {phi[i+1] <- ams_proposta; cont<- cont+1}, phi[i+1] <- phi[i])
+    
+  }
+  cont/B
+  
+  ts.plot(phi[-(1:(B/2))], xlab="?ndice", ylab="Valores simulados")
+  
+  # burn in
+  phi_burn <- phi[seq(B/2,B,1)]
+  acf(phi_burn, main ="")
+  
+  # amostra final (ap?s a reamostragem)
+  phi_final <- phi_burn[seq(1 , length(phi_burn) , 25)]
+  acf(phi_final, main = "")
+  
+  length(phi_final)
+  
+  # obtendo uma amostra da posteriori para rho
+  n_final <- length(phi_final)
+  rho_final <- rbeta(n_final, n*phi_final + a0, sum_x + b0)
+  #rgamma(n_final, n*phi_final, sum(x))
+  
+  #3.1Estimacao pontual
+  pontual_phi <- mean(phi_final)
+  pontual_rho <- mean(rho_final)
+  pontual <- c(pontual_rho, pontual_phi)
+  names(pontual) <- c('rho','phi')
+  cat('phi:', pontual_phi, 'rho:', pontual_rho, '\n')
+  
+  #3.2Estimacao intervalar
+  
+  lim_phi <- quantile(phi_final, c(.025,.975))
+  lim_rho <- quantile(rho_final, c(.025,.975))
+  limites <- rbind(lim_rho, lim_phi)
+  #4. Preditiva
+  #x_predito <- array(0, c(n_final, ))
+  v <- NULL
+  cat(n_final)
+  for (j in 1:n_final) {
+    x_simulado <- rnbinom(n=2000, phi_final, prob = rho_final)
+    # tabela <- table(x_simulado)
+    # result <- tabela/sum(tabela)
+    # v <- rbind(v,result)
+    
+    result <- c(mean(x_simulado==0), mean(x_simulado==1), 
+                mean(x_simulado==2), mean(x_simulado==3), 
+                mean(x_simulado==4), mean(x_simulado==5), 
+                mean(x_simulado==6), mean(x_simulado==7), 
+                mean(x_simulado==8))
+    v <- rbind(v,result)
+  }
+  
+  boxplot(v)
+  freq<- (df$frequencia/150)
+  points(1:9,freq, pch=19, col="red")
+  
+  #5. Guardando elementos
+  resposta <- list(pontual,
+                   limites,
+                   cbind(rho_final, phi_final), v, x)
+  #lista(pontual, )
+}
+bayesBinom(x, t=0.2, B=50000, n = 150)
+```

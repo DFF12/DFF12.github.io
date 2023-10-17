@@ -1,0 +1,363 @@
+---
+title: "Relatorio 3: Ácaro-vermelho-europeu"
+author: "Daniel Figueira Ferreira"
+format: html
+editor: visual
+lang: pt
+---
+
+```{r}
+#| echo: false
+#| output: false
+require(parallel)
+require(knitr)
+require(kableExtra)
+require(ggplot2)
+require(MASS)
+require(extraDistr)
+```
+
+## Introdução
+
+Em 18 de julho de 1951, 25 folhas foram selecionadas aleatoriamente de cada uma das seis árvores McIntosh em um único pomar que recebeu o mesmo tratamento de pulverização, e o número de fêmeas adultas foi contado em cada folha e pode ser visto na tabela abaixo.
+
+```{r}
+#| echo: false
+#| label: tbl-acaro-vermelho-europeu
+#| tbl-cap: "Tabela de frequência"
+#Tamanho dad amostra = 150  
+df <- data.frame(n_acaro=seq(0,8,1),
+                 frequencia=c(70,38,17,10,9,3,2,1,0))
+bds <- df
+colnames(bds) <- c("No. acaros/folha", "Frequencia")
+
+kable(t(bds)) 
+```
+
+## Laboratório
+
+Construa uma análise baseada na distribuição Poisson. Realize uma análise da preditiva a posteriori e Verifique que o modelo Poisson não é adequado para este problema. Em seguida:
+
+1.  Seja $X|\rho,\phi$ o número de de ácaros/folha, onde $\phi$ é conhecido, mostre que $\rho \sim \text{Beta}(a,b)$, cuja função de probabilidade é dada por
+
+\begin{equation}\label{xx}
+\begin{split}
+  P(x|\rho,\phi) = \frac{\Gamma{(\phi + x)}}{x!\Gamma{(\phi)}} \rho^{\phi} (1-\phi)^{x}
+\end{split}
+\end{equation}
+onde $\rho \in (0,1).\phi>0$ e $x \in \mathbb{N}$. Supondo que \phi é conhecido, mostre que $\rho \sim Beta(a,b)$ é uma priori conjugada para esse modelo, concluindo que:
+
+\begin{equation}\label{xy}
+\begin{split}
+  \rho|\phi,x \sim Beta(\phi n + a, \sum^n{x_i + b})
+\end{split}
+\end{equation}
+
+2.  Seja $\pi(\phi)$ a priori para $\phi$. Prove que
+
+\begin{equation}\label{qq}
+\begin{split}
+  f(\phi) \propto \pi(\phi) B(\phi n + a, \sum^n{x_i + b}) \Gamma{(\phi)}^{-1} \prod^n{\Gamma{(\phi + x_i)}}
+\end{split}
+\end{equation}
+
+3.  Encontre uma priori razoável para $\phi$. Faça a análise preditiva a posteriori e mostre que o modelo é adequado. Dê estimativas pontuais e intervalares para $\rho$ e $\phi$.
+
+```{r}
+#| echo: false
+#| output: false
+#Escolhendo a e b
+a <- 0.0001
+b <- 0.0001
+
+#n e somatorio de x
+n <- 150
+estat_suficiente <- sum(df$n_acaro*df$frequencia)
+x <- df$n_acaro*df$frequencia
+```
+
+```{r}
+#| echo: false
+#| output: false
+
+#Para uma gama(a+sum(x), b+n)
+
+#Esperanca
+lambda_post <- (a + estat_suficiente)/(b*n)
+lambda_post
+
+#variancia 
+var_post <- (a+estat_suficiente)/(b+n)**2
+var_post
+
+```
+
+### Modelo Poisson
+
+Simulando a preditiva a posteriori a partir de um modelo Poisson, é possível ver que o modelo não se adequa aos dados, sendo os pontos a frequência observada e os boxplots as respectivas frequências simuladas. É possível observar que na observação 0, onde nenhum ácaro foi encontrado, a frequência simulada está muito distante da observada, e se no ponto de maior densidade, temos essa discrepância. Então o modelo poisson não é o correto para explicar os dados.
+
+```{r}
+#| echo: false
+#| label: fig-poisson
+#| fig-cap: "Preditiva a posteriori para a Poisson"
+#Gerando amostras observadas
+
+lambdas <- rgamma(200,a + estat_suficiente, b +n)
+
+par <- function(ind) {
+  lambda_simul_i <- rgamma(200, a + estat_suficiente, b +n)
+  x <- rpois(200,lambda_simul_i)
+#  c(mean(x==0), mean(x==1), mean(x==2), mean(x==3), mean(x==4))
+  c(mean(x==0), mean(x==1), mean(x==2), mean(x==3), mean(x==4),
+    mean(x==5), mean(x==6), mean(x==7), mean(x==8))
+  
+}
+teste <- mclapply(1:100000, par, mc.cores = 3)
+dt <- as.data.frame(matrix(unlist(teste), ncol = 9, byrow = TRUE))
+
+
+#head((teste),2)
+
+boxplot(dt)
+points(1:9,df$frequencia/150, pch=19, col="red")
+```
+
+```{r}
+#| echo: false
+#| output: false
+
+
+# pos_phi <- function(phi){
+#   exp((0.01-1)*log(phi) -0.01*phi + lbeta(n*phi + a, estat_suficiente + b) -n*lgamma(phi) + sum(lgamma(phi+x)) )
+# }
+# priori <- function(phi) {
+#   exp( (0.01-1)*log(phi) -0.01*phi)
+# }
+# 
+# 
+# index <-seq(0.5,1.5,0.01)
+# for (i in index) {
+#   cat(pos_phi(i), i, "\n")
+# }
+
+#Aparentemente o valor mais verossimil e o 1
+```
+
+```{r}
+#| echo: false
+#| output: false
+
+# c_integracao <- integrate(pos_phi,0,Inf)
+# curve(sapply(x, pos_phi), 0.5,1.5)
+# 
+# 
+# optimise(f_densidade_pos,c(0,2), maximum = T)
+# 
+# (fx <- integrate(f_densidade_pos,0,Inf))
+# 
+# rgamma(1000)
+
+```
+
+```{r}
+#| echo: false
+#| output: false
+#alpha/beta < 0.95
+# curve(sapply(x, pos_phi), 0.5,1.5)
+# 
+# curve(dgamma(x, shape = 0.01, scale  = 0.01), from = 0, to = 2,  xlim = c(0,1))
+# curve(dgamma(x, shape = 0.01, rate  = 0.01), from = 0, to = 2,  xlim = c(0,1))
+# curve(dbeta(x, shape1  = 3, shape2 = 3), from = 0, to = 2,  xlim = c(0,1))
+
+
+var(rbeta(2000, 2,2))
+```
+
+```{r}
+#| echo: false
+#| output: false
+
+# v <- NULL
+# for (i in 1:500) {
+#   betabin <- rbnbinom(2000, 1, alpha = 1*n+a, beta = sum(x)+b)
+#   result <- c(mean(betabin==0), mean(betabin==1), mean(betabin==2), mean(betabin==3), mean(betabin==4),
+#     mean(betabin==5), mean(betabin==6), mean(betabin==7), mean(betabin==8))
+#   v <- rbind(v, result)
+# }
+# v
+# boxplot(v)
+# points(1:9,df$frequencia/150, pch=19, col="red")
+
+```
+
+```{r}
+#| echo: false
+#| output: false
+bayesBinom <- function(x, t=0.1, B=10, priori.phi ='G',a0=1,b0=.1, a1=1,b1=1, n) {
+  #0. Carregando pacote
+  #1. Informação da amostra
+  #n <- length(x)
+  sum_x <- sum(x)
+
+  opt <- fitdistr(x, 'negative binomial')
+  phi_inicial <- opt$estimate[1]
+  #2. priori escolhida para a posteriori
+  if(priori.phi == 'G') {
+    logPost <- function(phi) {
+      sum(lgamma(phi+x)) -n*lgamma(phi) + lbeta(n*phi+a0, sum_x+ b0) + 
+        dgamma(phi, a1, b1, log = T)
+    }
+  }
+  #3. Simulacao
+  #metropolis hastings
+  phi <- phi_inicial
+  cont <- 0
+  for (i in 1:B) {
+    ams_proposta <- rgamma(1, phi[i]*t, t) #Simulando da proposta
+    l_numerador <- logPost(ams_proposta) + dgamma(phi[i], ams_proposta*t, t, log = T)
+    l_denominador <-  logPost(phi[i]) + dgamma(ams_proposta, phi[i]*t,t, log = T)
+    prob <- min(1, exp(l_numerador-l_denominador))
+    
+    u <- runif(1)
+    ifelse(u < prob, {phi[i+1] <- ams_proposta; cont<- cont+1}, phi[i+1] <- phi[i])
+    
+  }
+  cont/B
+  
+  #ts.plot(phi[-(1:(B/2))], xlab="?ndice", ylab="Valores simulados")
+  
+  # burn in
+  phi_burn <- phi[seq(B/2,B,1)]
+  #acf(phi_burn, main ="")
+  
+  # amostra final (ap?s a reamostragem)
+  phi_final <- phi_burn[seq(1 , length(phi_burn) , 30)]
+  #acf(phi_final, main = "")
+  
+  #length(phi_final)
+  
+  # obtendo uma amostra da posteriori para rho
+  n_final <- length(phi_final)
+  rho_final <- rbeta(n_final, n*phi_final + a0, sum_x + b0)
+  #rgamma(n_final, n*phi_final, sum(x))
+  
+  #3.1Estimacao pontual
+  pontual_phi <- mean(phi_final)
+  pontual_rho <- mean(rho_final)
+  pontual <- c(pontual_rho, pontual_phi)
+  names(pontual) <- c('rho','phi')
+  cat('phi:', pontual_phi, 'rho:', pontual_rho, '\n')
+  
+  #3.2Estimacao intervalar
+  
+  lim_phi <- quantile(phi_final, c(.025,.975))
+  lim_rho <- quantile(rho_final, c(.025,.975))
+  limites <- rbind(lim_rho, lim_phi)
+  #4. Preditiva
+  #x_predito <- array(0, c(n_final, ))
+  v <- NULL
+  cat(n_final)
+  for (j in 1:n_final) {
+    x_simulado <- rnbinom(n=2000, phi_final, prob = rho_final)
+    # tabela <- table(x_simulado)
+    # result <- tabela/sum(tabela)
+    # v <- rbind(v,result)
+    
+    result <- c(mean(x_simulado==0), mean(x_simulado==1), 
+                mean(x_simulado==2), mean(x_simulado==3), 
+                mean(x_simulado==4), mean(x_simulado==5), 
+                mean(x_simulado==6), mean(x_simulado==7), 
+                mean(x_simulado==8))
+    v <- rbind(v,result)
+  }
+  
+  #boxplot(v)
+  freq<- (df$frequencia/150)
+  #points(1:9,freq, pch=19, col="red")
+  
+  #5. Guardando elementos
+  resposta <- list(pontual,
+                   limites,
+                   cbind(rho_final, phi_final), v, x)
+  return(resposta)
+  #lista(pontual, )
+}
+mod <- bayesBinom(x, t=0.4, B=50000, n = 150)
+```
+
+### Modelo Binomial Negativa
+
+Primeiramente devemos provar que $\rho \sim \text{Binomial Negativa}(a, b)$. Onde $\Theta = { \rho, \phi}$
+
+\begin{equation}\label{bayes}
+\begin{split}
+  P(x|\Theta) \propto L(\Theta)P(\Theta)
+\end{split}
+\end{equation}
+
+\begin{equation}\label{bayesVero}
+\begin{split}
+  L(\Theta) = \frac{\prod\Gamma{(\phi+x_i)}}{\prod{x_i{!}} \Gamma{(\phi)^n}} \rho^{n\phi} (1-\rho)^{\sum{x_i}}
+\end{split}
+\end{equation}
+
+Para $\rho$ faremos a priori sendo $Beta(a,b)$ e utilizaremos $\phi$ como constante.
+
+\begin{equation}\label{bayesVeroRho}
+\begin{split}
+  P(\rho|x,\phi)& \propto \frac{\prod\Gamma{(\phi+x_i)}}{\prod{x_i{!}} \Gamma{(\phi)^n}} \rho^{n\phi} (1-\rho)^{\sum{x_i}} \frac{\Gamma{(a+b)}}{\Gamma{(a)}\Gamma{(b)}} \rho^{a-1} (1-\rho)^{b-1}\\
+  &\propto \rho^{n\phi + a -1} (1-\rho)^{\sum{x_i} + b -1}
+\end{split}
+\end{equation}
+
+Encontramos o núcleo de uma distribuição Beta, assim provando que \rho possui $\rho|\phi,x \sim Beta(n\phi + a,\sum{x_i}+b)$.
+
+Olhando a posteriori de $\rho$, é fácil ver que essa depende de $\phi$, e para se obter $\phi$ é necessário integrar em $\rho$. Assim obteremos uma posteriori que não depende de $\rho$.
+
+Para $\pi(\phi)$ como sendo a priori de $\phi$ devemos integrar em $\rho$, e assim obteremos a marginal de $\phi$.
+
+\begin{equation}\label{bayesVeroRhoConj}
+\begin{split}
+  P(\Theta|x) &\propto \frac{\prod\Gamma{(\phi+x_i)}}{\Gamma{(\phi)^n}} \rho^{n\phi + a-1}(1-\rho)^{\sum{x_i}+b-1}\frac{1}{B(n\phi+a, \sum{x_i} + b)} \pi{(\phi)}\\
+  P(\phi|x) &\propto \frac{\prod{\Gamma{(\phi+x_i)}}}{\Gamma{(\phi)}^n} \pi{(\phi)}Beta(n\phi+a, \sum{x_i} + b)
+\end{split}
+\end{equation}
+
+Sendo assim, concluímos o ponto 2. Agora para a priori de $\phi$ faremos $\pi(\phi) \sim Gama(c,d)$ com o objetivo de obter a preditiva a posteriori.
+
+A preditiva posteriori para o modelo da Binomial Negativa na @fig-negbinom possui a menor distância entre as frequências observadas e a frequência simulada do modelo, e ao compararmos com a @fig-poisson que foi considerada inadequada, temos a comprovação de que o modelo da Binomial Negativa é aquele que melhor explica os dados provenientes da 
+@tbl-acaro-vermelho-europeu.
+```{r}
+#| echo: false
+#| label: fig-negbinom
+#| fig-cap: "Preditiva a posteriori para a Binomial Negativa"
+
+boxplot(mod[[4]])
+freq<- (df$frequencia/150)
+points(1:9,freq, pch=19, col="red")
+#mod[[2]]
+```
+
+```{r}
+#| echo: false
+#| label: tbl-binonNeg-pontual
+#| tbl-cap: "Estimação Pontual para os parâmetros"
+
+erro_rho <- sd(mod[[3]][,1])
+erro_phi <- sd(mod[[3]][,2])
+erros <- cbind(erro_rho, erro_phi)
+tbl_pontual <- rbind(mod[[1]], erros)
+rownames(tbl_pontual) <- c("Media", "Erro")
+  
+kable(tbl_pontual)
+```
+
+```{r}
+#| echo: false
+#| label: tbl-Pontual
+#| tbl-cap: "Intervalo de credibilidade para rho e phi"
+
+tbl <- mod[[2]]
+rownames(tbl) <- c("rho", "phi")
+kable(tbl)
+```
