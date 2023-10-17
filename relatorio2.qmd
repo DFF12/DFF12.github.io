@@ -5,6 +5,7 @@ format: html
 editor: visual
 lang: pt
 ---
+
 ```{r}
 #| label: carregando_os_pacotes
 #| echo: false
@@ -19,15 +20,7 @@ require(tidyr)
 
 ## Introdução
 
-Em seu famoso livro Lei dos Pequenos Números, Bortkiewicz (1898) mostra como 
-o número de mortes por coice de cavalo se aproxima do modelo Poisson. 
-Os dados originais foram organizados em uma tabela de dupla entrada, 
-com os anos nas linhas (de 1875 a 1894, compreendendo 20 anos) e 
-os batalhões nas colunas (16 ao todo). Os dados que iremos analisar 
-(`HorseKicks`, do pacote `vcd`) foram compilados por Fisher (1925), 
-considerando dez batalhões com o mesmo tipo de organização. Cada cela da tabela 
-(batalhão-ano) é considerada uma realização de uma variável aleatória, 
-o que implica em uma amostra de tamanho 200.
+Em seu famoso livro Lei dos Pequenos Números, Bortkiewicz (1898) mostra como o número de mortes por coice de cavalo se aproxima do modelo Poisson. Os dados originais foram organizados em uma tabela de dupla entrada, com os anos nas linhas (de 1875 a 1894, compreendendo 20 anos) e os batalhões nas colunas (16 ao todo). Os dados que iremos analisar (`HorseKicks`, do pacote `vcd`) foram compilados por Fisher (1925), considerando dez batalhões com o mesmo tipo de organização. Cada cela da tabela (batalhão-ano) é considerada uma realização de uma variável aleatória, o que implica em uma amostra de tamanho 200.
 
 ```{r}
 #| echo: false
@@ -52,8 +45,7 @@ Para este relatóriom os seguintes pontos devem ser realizados.
 
 3.  Encontrar uma estimativa pontual e intervalar para $\lambda$
 
-4.  Realizar uma análise comparando as frequências relativas simuladas a 
-partir da preditiva a posteriori com as frequências da amostra original.
+4.  Realizar uma análise comparando as frequências relativas simuladas a partir da preditiva a posteriori com as frequências da amostra original.
 
 5.  Encontrar a priori de Jeffreys, mostrar que a posteriori é própria e repetir os passos anteriores.
 
@@ -61,9 +53,7 @@ partir da preditiva a posteriori com as frequências da amostra original.
 
 1.  Mostrar que a priori $Gama(a,b)$ é conjugada para o modelo $Poisson(\lambda)$.
 
-Para isso, provamos que a poisson pertence a família exponencial, 
-onde assume a forma $L(\lambda) = \frac{1}{\prod{x!}}e^{-\lambda n} e^{\sum{x}log{\lambda}}$.
-Onde obtemos os membros que compõem a família exponencial:
+Para isso, provamos que a poisson pertence a família exponencial, onde assume a forma $L(\lambda) = \frac{1}{\prod{x!}}e^{-\lambda n} e^{\sum{x}log{\lambda}}$. Onde obtemos os membros que compõem a família exponencial:
 
 \begin{equation}\label{xx}
   \begin{split}
@@ -72,22 +62,19 @@ Onde obtemos os membros que compõem a família exponencial:
     &w(\lambda)=log{\lambda}\\
     &T(x)=\sum{x}
   \end{split}
-\end{equation}
-Sendo assim provamos que a poisson pertence a família exponencial. 
+\end{equation} Sendo assim provamos que a poisson pertence a família exponencial.
 
-Deixando a verossimilhança apenas em função de $\lambda$ ficamos com $L(\lambda) \propto \lambda^{\sum{x_i}}e^{-\lambda{n}}$, 
-essa que por sua vez possui um núcleo semelhante ao da $\lambda \sim Gama(a,b)$ que é dado abaixo por:
+Deixando a verossimilhança apenas em função de $\lambda$ ficamos com $L(\lambda) \propto \lambda^{\sum{x_i}}e^{-\lambda{n}}$, essa que por sua vez possui um núcleo semelhante ao da $\lambda \sim Gama(a,b)$ que é dado abaixo por:
 
 $$f(\lambda) \propto \lambda^{a-1}e^{-b\lambda}$$
 
 Logo provamos que o modelo conjugado da Poisson é a Gama, e que resulta na posteriori: $$\lambda|x \sim Gama(a+ \sum{x_i}, b + n)$$
 
-
 O $\sum{x}$ corresponde ao numero de pessoas que vieram a falecer, e o somatório da multiplicação entre a quantidade de ocorrências pelo seu nDeaths é o resultado para a estatística suficiente.
 
----
+------------------------------------------------------------------------
 
-2. Escolher valores razoáveis para a e b de modo a ter uma priori vaga.
+2.  Escolher valores razoáveis para a e b de modo a ter uma priori vaga.
 
 Os valores escolhidos foram $a = 0.001$ e $b = 0.001$.
 
@@ -111,13 +98,14 @@ sum_x <- 65*1 + 22*2 + 3*3 + 4*1
 
 Média e variância para a priori:
 
+```{=tex}
 \begin{equation}\label{yy}
   \begin{split}
     &E(\lambda)=\frac{a}{b}=\frac{0.001}{0.001}=1\\
     &Var(\lambda)=\frac{a}{b^2}=\frac{0.001}{0.001^2}= 1000
   \end{split}
 \end{equation}
-
+```
 ```{r}
 #| echo: false
 #Media e variancia para a priori
@@ -125,19 +113,20 @@ media_priori <- a/b
 var_priori <- a/b**2
 ```
 
----
+------------------------------------------------------------------------
 
-3. Encontrar uma estimativa pontual e intervalar para $\lambda$ a posteriori.
+3.  Encontrar uma estimativa pontual e intervalar para $\lambda$ a posteriori.
 
 A estimativa pontual para $\lambda$ é:
 
+```{=tex}
 \begin{equation}\label{zz}
   \begin{split}
     &E(\lambda|x)= \frac{\alpha}{\beta}=\frac{a+ \sum{x_i}}{b + n} = \frac{122.001}{200.001} = 0.6100019\\
     &Var(\lambda|x)= \frac{\alpha}{\beta^2}=\frac{a+ \sum{x_i}}{{(b + n)}^2} = \frac{122.001}{200.001^2} = 0.003049994
   \end{split}
 \end{equation}
-
+```
 ```{r}
 #| echo: false
 #Esperanca
@@ -150,7 +139,7 @@ var_post <- (a+sum_x)/(b+n)**2
 #sqrt(var_post)
 ```
 
-Intervalo de Credibilidade: 
+Intervalo de Credibilidade:
 
 ```{r}
 #| echo: false
@@ -166,9 +155,9 @@ IC_posteriori <- t(data.frame(a=c(qgamma(0.025,a_post,b_post), qgamma(0.025,a_po
 kable(IC_posteriori, col.names = c("2.5%", "97.5%"), row.names = F)
 ```
 
----
+------------------------------------------------------------------------
 
-4.   Realizar uma análise comparando as frequências relativas simuladas a partir da preditiva a posteriori com as frequências da amostra original.
+4.  Realizar uma análise comparando as frequências relativas simuladas a partir da preditiva a posteriori com as frequências da amostra original.
 
 ```{r}
 #| echo: false
@@ -207,14 +196,13 @@ ggplot(dt_long, aes(x = N_deaths, y = value, col=N_deaths)) +
 
 Pelo gráfico é possível ver que as frequências relativas registradas pela simulação estão de acordo com as frequências obtidas da amostra original, sendo assim podemos dizer que a poisson é um modelo adequado.
 
----
+------------------------------------------------------------------------
 
-5.   Encontrar a priori de Jeffreys, mostrar que a posteriori é própria e repetir os passos anteriores. A posteriori encontrada foi
+5.  Encontrar a priori de Jeffreys, mostrar que a posteriori é própria e repetir os passos anteriores. A posteriori encontrada foi
 
-A priori de Jeffreys obtida para a poisson foi:
-$$f(\lambda)=\lambda^{-1/2}$$
-Para a posteriori ficamos com:
+A priori de Jeffreys obtida para a poisson foi: $$f(\lambda)=\lambda^{-1/2}$$ Para a posteriori ficamos com:
 
+```{=tex}
 \begin{equation}\label{posteriori_jeffreys}
   \begin{split}
     f(\lambda)&=\frac{L(\lambda)f(\lambda)}{f(x)}\\
@@ -223,9 +211,8 @@ Para a posteriori ficamos com:
     & \propto \lambda^{\sum{x_i} +\frac{1}{2} -1} e^{-\lambda n}
   \end{split}
 \end{equation}
-
-Logo, a partir de uma priori imprópria, obtivemos uma posteriori própria com distribuição
-$Gama(\sum{x_i}+0.5, n)$.
+```
+Logo, a partir de uma priori imprópria, obtivemos uma posteriori própria com distribuição $Gama(\sum{x_i}+0.5, n)$.
 
 ```{r}
 #| echo: false
@@ -235,16 +222,15 @@ beta_n <- n
 
 ```
 
-Estimativa pontual para $\lambda$:
-\begin{equation}\label{estimativa_pontual_jeffrey}
+Estimativa pontual para $\lambda$: \begin{equation}\label{estimativa_pontual_jeffrey}
   \begin{split}
     &E(\lambda|x)= \frac{\alpha}{\beta}=\frac{0.5 + \sum{x_i}}{n} = \frac{122.5}{200} = 0.6125\\
     &Var(\lambda|x)= \frac{\alpha}{\beta^2}=\frac{0.5 + \sum{x_i}}{{n}^2} = \frac{122.5}{200^2} = 0.0030625
   \end{split}
 \end{equation}
 
-
 Intervalo de Credibilidade:
+
 ```{r}
 #| echo: false
 #| label: tbl-intervalo-credibilidade-jeffreys
@@ -261,8 +247,6 @@ IC_posteriori <- t(data.frame(a=c(inferior, superior)))
 kable(IC_posteriori, col.names = c("2.5%", "97.5%"), row.names = F)
 
 ```
-
-
 
 ```{r}
 #| echo: false
@@ -296,7 +280,3 @@ ggplot(dt_long, aes(x = N_deaths, y = value, col=N_deaths)) +
 ```
 
 Novamente é possível ver que o modelo poisson é adequado para os dados.
-
-
-
-
