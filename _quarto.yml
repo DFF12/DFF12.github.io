@@ -13,6 +13,7 @@ book:
         - relatorio1.qmd
         - relatorio2.qmd
         - relatorio3_acaro.qmd
+        - relatorio4.qmd
     - references.qmd
 
 bibliography: references.bib

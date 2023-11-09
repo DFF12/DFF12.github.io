@@ -1,0 +1,155 @@
+---
+title: "Relatorio 4: Tornados"
+author: "Daniel Figueira Ferreira"
+format: html
+editor: visual
+lang: pt
+---
+
+```{r}
+#| echo: false
+#| output: false
+require(knitr)
+require(kableExtra)
+```
+
+```{r}
+#| echo: false
+tor <- c(0, 0,0, 1, 0, 0, 0, 1, 0, 0,
+1, 0, 0, 0, 1, 1, 0, 0, 0, 2,
+0, 0, 0, 0, 1, 3, 0, 2, 1, 0,
+1, 0, 0, 1, 0, 1, 0, 0, 2, 1,
+0, 1, 2, 0, 0, 1, 0, 1, 2, 0,
+0, 0, 3, 0, 2, 0, 1, 1, 3, 0,
+1, 1, 1)
+tbl <- table(tor);#prop.table(table(tor))
+```
+
+Abaixo, segue o número anual de tornados em Lafayette Parish, Louisiana, entre 1950 e 2012.
+
+|  0  |  1  |  2  |  3  |
+|:---:|:---:|:---:|:---:|
+| 35  | 19  |  6  |  3  |
+
+: Tabela de frequência absoluta para os tornados {#tbl-freq-tor}
+
+Para esses dados, temos interesse em explicar a frequência de tornados registrados durante o ano ou seja trata-se de um modelo de contagem, o modelo mais básico para modelar dados de contagem é o modelo Poisson.
+
+Para a aplicação do modelo Poisson, faremos uso de uma Verossimilhança Poisson, com uma priori Gama como conjugada, abaixo é possível ver a verossimilhança e priori para modelo Poisson:
+
+```{=tex}
+\begin{equation}\label{xx}
+  \begin{split}
+    L(\theta) &= \frac{e^{-n\theta} \theta^{\sum_{i=1}^{n}{x_i} }}{\prod_{i=1}^{n}{x_i}}\\
+    \pi(\theta)&= Gama(r, \frac{p}{1-p})\\
+  \end{split}
+\end{equation}
+```
+Ao marginalizar em $\theta$ obtemos uma Binomial negativa onde $Y \sim NB(\sum{x},\frac{n}{1+n})$
+
+Obtendo a densidade, temos a proporção para o número de tornados durante ao ano, que pode ser vizualizado abaixo em @fig-modelo-poisson.
+
+```{r}
+#| echo: false
+#| label: fig-modelo-poisson
+#| fig-cap: "Comparação entre a frequência observada e a predita pelo modelo Poisson"
+r1 <- sum(tor)
+s1 <- length(tor)
+
+plot(table(tor)/s1, type= 'p', xlab='No. anual de tornados', ylab = 'Probabilidade', col = 'cyan3', pch=16)
+lines(0:3, table(tor)/s1, col = 'cyan3')
+points(0:3, dnbinom(0:3, size = r1, prob = s1/(1+s1)), pch=16, col = 'brown')
+lines(0:3, dnbinom(0:3, size = r1, prob = s1/(1+s1)), col = 'brown')
+
+legend('bottomleft',c('Freq. relativa','Pred. post. Poisson'), fill=c('cyan3','brown'), bty='n')
+
+```
+
+Como é possível ver, a princípio poderíamos vir a dizer que o modelo ajusta bem os dados, mas existe uma atenção que deve ser vista, o modelo criado subestima ou superestima a frequênciade de tornados em todos os 4 pontos.
+
+Isso ocorre devido a uma maior presença de zeros na base de dados, em um modelo poisson tradicional, apesar de existir probabilidade no ponto zero quando $\lambda$ é pequeno, é possível que os dados não estejam sendo provenientes de uma distribuição Poisson, mas de que sejam modelados por uma mistura onde o zero é o contaminante, o zero está sendo inflacionado.
+
+Logo poderíamos modelar com um modelo Poisson inflada de zeros, a inflada por zeros ocorre quando uma parcela dos dados possui distribuição $Y|\lambda\sim Poisson({\lambda})$ e outra possui $Z|p \sim Bernoulli(p)$, quando $z=0|x_i=0$ teremos o valor sendo proveniente da Poisson, caso $z=1|x_i=0$ teremos a ocorrência de zero.
+
+Ajustando o modelo por meio do amostrador de Gibbs, temos os seguintes resultados na @fig-poisson-contaminada. A preditiva posteriori da Poisson inflacionada por zeros consegue explicar a ocorrência anual de tornados em Lafayette Parish, Louisiana no período de 1950 a 2012.
+
+```{r}
+#| echo: false
+#| output: false
+# hiperparâmetros para rho
+a = b = 1
+
+# hiperparâmetros para theta
+r=.1
+s=.1
+
+# tamanho da amostra
+n <- length(tor) 
+
+# valores iniciais da cadeia
+theta <- mean(tor)
+rho <- mean(tor == 0)
+
+# amostrador de Gibbs
+B <- 50000
+for(i in 1:B){
+  # simulando z
+  z <- NULL
+  prob <- rho[i]/ ( (1-rho[i])*dpois(0,theta[i]) + rho[i])
+  for(j in 1:n){
+    if(tor[j] >0){ z[j] <- 0} else{
+      z[j] <- rbinom(1,1,prob)
+    }
+  }
+
+  # simulando rho
+  rho[i+1] <- rbeta( 1, a + sum( z * (tor == 0)) , n- sum(z)+ b )
+  
+  # simulando theta
+  theta[i+1] <- rgamma(1, sum( tor*(1-z) ) + r,  n - sum(z) + s)
+}
+
+theta_sim <- theta[seq(B/2,B,15)]
+rho_sim <- rho[seq(B/2,B,15)]
+
+oo <- par(mfrow=c(2,2))
+ts.plot(theta_sim, lwd = 2)
+ts.plot(rho_sim, lwd = 2)
+acf(theta_sim)
+acf(rho_sim)
+
+# tamanho do vetor simulado
+Bs <- length(theta_sim)
+
+x_til <- array( NA_real_, c(Bs,n))
+for(j in 1:Bs){
+  z <- rbinom( n, 1, rho_sim[j])
+  x_til[j,] <- (1-z)*rpois(n, theta_sim[j])
+}
+
+# probabilidades estimadas via ZIP
+p_zip <- prop.table(table(x_til))
+
+#p_zip
+```
+
+```{r}
+#| echo: false
+#| label: fig-poisson-contaminada
+#| fig-cap: "Comparação entre a frequência observada e as simuladas do modelo Poisson e ZIP"
+r1 <- sum(tor)
+s1 <- length(tor)
+
+
+plot(table(tor)/s1, type= 'p', xlab='N. anual de tornados', ylab = 'Probabilidade', col = 'cyan3', pch=16)
+lines(0:3, table(tor)/s1, col = 'cyan3')
+#Quando a conjugada vem como gamma para a poisson, temos uma binomial negativa
+points(0:3, dnbinom(0:3, size = r1, prob = s1/(1+s1)), pch=16, col = 'brown')
+lines(0:3, dnbinom(0:3, size = r1, prob = s1/(1+s1)), col = 'brown')
+
+points(names(p_zip), p_zip, pch=16,col = 'magenta')
+lines(names(p_zip), p_zip,col = 'magenta')
+
+legend('bottomleft',c('Freq. relativa','Pred. post. Poisson', 'Pred. post. ZIP'), fill=c('cyan3','brown', 'magenta'), bty='n')
+
+```
